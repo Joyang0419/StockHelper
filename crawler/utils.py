@@ -36,4 +36,6 @@ class Crawler:
             return headers
         for row in headers_raw.split("\n"):
             headers[row.split(': ')[0]] = row.split(': ')[1]
+        print('headers: ', headers)
         return headers
+
