@@ -14,17 +14,16 @@ class CrawlerStockChip(Crawler):
         "charset": "utf8"
     }
 
-    def __init__(self, url: str = None, headers: dict = None, **params):
+    def __init__(self, url: str = None, method: str = None, headers: dict = None, **params):
         """
         建構式
         url: 網頁的網址
         headers: 網頁的頭
         **params: 要提供網址的參數
-        db_url: 資料庫位置
         """
-        self.url = url
-        self.headers = headers
-        self.params = params
+        # crawler 物件
+        Crawler.__init__(self, url=url, headers=headers, method=method, **params)
+        # 存放資料區
         self.data = []
 
     def get_data(self, response_text) -> list:
@@ -40,7 +39,7 @@ class CrawlerStockChip(Crawler):
             individual_stock['stock_symbol'] = stock_symbol
             individual_stock['trading_volume'] = trading_volume
             self.data.append(individual_stock)
-        return self.data
+            return self.data
 
     def data_processing(self):
         """資料處理"""
@@ -80,7 +79,7 @@ class CrawlerStockChip(Crawler):
         - get_data
         - data_processing
         """
-        response = self.request('get')
+        response = Crawler.request(self)
         # 判斷網頁狀態，200(正常才繼續運作)
         if response.status_code == 200:
             # 抓取資料
@@ -88,7 +87,7 @@ class CrawlerStockChip(Crawler):
             # 資料處理
             self.data_processing()
             # 進入資料庫
-            self.to_database()
+            # self.to_database()
 
         else:
             print("沒資料: ", self.params['date'])
@@ -118,10 +117,11 @@ User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
     headers_dict = Crawler.get_headers(headers_raw=headers_raw)
     date_list = CrawlerStockChip.create_date(start_date=20200407,
                                              end_date=20200409)
-
+# 使用多線程，用日期每天去爬。
     for each_date in date_list:
         crawler_stock_chip = CrawlerStockChip(url='https://www.twse.com.tw/fund/T86',
                                               headers=headers_dict,
+                                              method='get',
                                               response='json',
                                               date=each_date,
                                               selectType='ALL')

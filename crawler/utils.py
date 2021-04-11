@@ -6,7 +6,7 @@ class Crawler:
     爬蟲(基底類別)
     """
     # 建構式
-    def __init__(self, url: str, headers: dict, **params: dict) -> object:
+    def __init__(self, url: str, method: str, headers: dict, **params):
         """
         建構式
         url: 網頁的網址
@@ -15,14 +15,15 @@ class Crawler:
         """
         self.url = url
         self.headers = headers
+        self.method = method
         self.params = params
 
     # instance method
-    def request(self, method):
+    def request(self):
         """
         發出request
         """
-        response = requests.request(method=method, url=self.url, params=self.params)
+        response = requests.request(method=self.method, url=self.url, params=self.params)
         return response
 
     # static method
