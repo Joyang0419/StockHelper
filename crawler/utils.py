@@ -23,7 +23,10 @@ class Crawler:
         """
         發出request
         """
-        response = requests.request(method=self.method, url=self.url, params=self.params)
+        response = requests.request(method=self.method,
+                                    url=self.url,
+                                    headers=self.headers,
+                                    params=self.params)
         return response
 
     # static method
@@ -37,6 +40,5 @@ class Crawler:
             return headers
         for row in headers_raw.split("\n"):
             headers[row.split(': ')[0]] = row.split(': ')[1]
-        print('headers: ', headers)
         return headers
 

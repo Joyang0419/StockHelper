@@ -2,15 +2,17 @@ from crawler.utils import Crawler
 from datetime import datetime, timedelta
 import json
 import pymysql
+import time
+import random
 
 
 class CrawlerStockChip(Crawler):
     db_settings = {
-        "host": "192.168.164.94",
+        "host": "192.168.56.102",
         "port": 3306,
         "user": "root",
         "password": "aa329765",
-        "db": "test",
+        "db": "stock_helper",
         "charset": "utf8"
     }
 
@@ -30,23 +32,31 @@ class CrawlerStockChip(Crawler):
         """抓取資料"""
         json_data = json.loads(response_text)
         print('抓取資料日期: ', self.params['date'])
-        data = json_data['data']
-        print('資料筆數: ', len(data))
-        for each_data in data:
-            individual_stock = {}  # 個股的資料存放區
-            stock_symbol = each_data[0]  # stock symbol: 股票代號
-            trading_volume = each_data[18]  # trading volume: 交易量
-            individual_stock['stock_symbol'] = stock_symbol
-            individual_stock['trading_volume'] = trading_volume
-            self.data.append(individual_stock)
+        if json_data['stat'] == "OK":
+            # 判斷抓取位置: 三大法人買賣超股數
+            fields = json_data['fields']
+            institution_investor_net_buy_position = fields.index('三大法人買賣超股數')
+
+            data = json_data['data']
+            print('資料筆數: ', len(data))
+            for each_data in data:
+                individual_stock = {}  # 個股的資料存放區
+                stock_symbol = each_data[0]  # stock symbol: 股票代號
+                # institution_investor_net_buy: 三大法人買賣超股數
+                institution_investor_net_buy = each_data[institution_investor_net_buy_position]
+                individual_stock['stock_symbol'] = stock_symbol
+                individual_stock['institution_investor_net_buy'] = institution_investor_net_buy
+                self.data.append(individual_stock)
             return self.data
+        else:
+            self.data = None
 
     def data_processing(self):
         """資料處理"""
         print('資料處理中')
         for each_data in self.data:
             # 交易量去除千分位，並轉換成數字。
-            each_data['trading_volume'] = int(each_data['trading_volume'].replace(',', ''))
+            each_data['institution_investor_net_buy'] = int(each_data['institution_investor_net_buy'].replace(',', ''))
 
     def to_database(self):
         """資料進入資料庫"""
@@ -58,10 +68,12 @@ class CrawlerStockChip(Crawler):
             with connection.cursor() as cursor:
                 # 資料表相關操作
                 # 新增資料SQL語法
-                command = "INSERT INTO test (stock_symbol, trading_volume, date) VALUES(%s, %s, %s)"
+                command = "INSERT INTO bargaining_chip" \
+                          "(stock_symbol, institution_investor_net_buy, date) " \
+                          "VALUES(%s, %s, %s)"
                 for each_data in self.data:
                     cursor.execute(command, (each_data['stock_symbol'],
-                                             each_data['trading_volume'],
+                                             each_data['institution_investor_net_buy'],
                                              self.params['date']))
                 # 儲存變更
                 connection.commit()
@@ -84,10 +96,11 @@ class CrawlerStockChip(Crawler):
         if response.status_code == 200:
             # 抓取資料
             self.get_data(response_text=response.text)
-            # 資料處理
-            self.data_processing()
-            # 進入資料庫
-            # self.to_database()
+            if self.data is not None:
+                # 資料處理
+                self.data_processing()
+                # 進入資料庫
+                self.to_database()
 
         else:
             print("沒資料: ", self.params['date'])
@@ -115,8 +128,9 @@ sec-ch-ua-mobile: ?0
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36'''
 
     headers_dict = Crawler.get_headers(headers_raw=headers_raw)
-    date_list = CrawlerStockChip.create_date(start_date=20200407,
-                                             end_date=20200409)
+    # 資料存在起始日期: 20210502
+    date_list = CrawlerStockChip.create_date(start_date=20120502,
+                                             end_date=20210413)
 # 使用多線程，用日期每天去爬。
     for each_date in date_list:
         crawler_stock_chip = CrawlerStockChip(url='https://www.twse.com.tw/fund/T86',
@@ -126,6 +140,7 @@ User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
                                               date=each_date,
                                               selectType='ALL')
         crawler_stock_chip.main()
+        time.sleep(random.randint(3, 6))
 
 
 
