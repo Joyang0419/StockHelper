@@ -12,10 +12,10 @@ class CrawlerIndustryType(Crawler):
     """
     data = []  # 存放資料區
     db_settings = {
-        "host": "192.168.164.94",
+        "host": "172.18.0.101",
         "port": 3306,
         "user": "root",
-        "password": "aa329765",
+        "password": "stockhelper",
         "db": "stock_helper",
         "charset": "utf8"
     }
@@ -40,6 +40,22 @@ class CrawlerIndustryType(Crawler):
         industry_type = data['industryType']
         self.data.append(industry_type)
 
+        return self.data
+
+    def main(self):
+        """
+        主程式:
+        - request，狀態200，繼續執行。
+        - get_data
+        - data_processing
+        """
+        response = self.request()
+        # 判斷網頁狀態，200(正常才繼續運作)
+        if response.status_code == 200:
+            # 抓取資料
+            self.get_data(response_text=response.text)
+        else:
+            print("沒資料: ", self.params['date'])
         return self.data
 
     @staticmethod
@@ -74,22 +90,6 @@ class CrawlerIndustryType(Crawler):
         # SQL錯誤時，跳出錯誤原因。
         except Exception as ex:
             print(ex)
-
-    def main(self):
-        """
-        主程式:
-        - request，狀態200，繼續執行。
-        - get_data
-        - data_processing
-        """
-        response = self.request()
-        # 判斷網頁狀態，200(正常才繼續運作)
-        if response.status_code == 200:
-            # 抓取資料
-            self.get_data(response_text=response.text)
-        else:
-            print("沒資料: ", self.params['date'])
-        return self.data
 
 
 if __name__ == '__main__':
