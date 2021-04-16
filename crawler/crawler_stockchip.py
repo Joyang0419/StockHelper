@@ -1,4 +1,4 @@
-from crawler.utils import Crawler
+from utils import Crawler
 from datetime import datetime, timedelta
 import json
 import pymysql
