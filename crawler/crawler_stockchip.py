@@ -35,7 +35,7 @@ class CrawlerStockChip(Crawler):
         if json_data['stat'] == "OK":
             # 判斷抓取位置: 三大法人買賣超股數
             fields = json_data['fields']
-            institution_investor_net_buy_position = fields.index('三大法人買賣超股數')
+            institutional_investor_net_buy_position = fields.index('三大法人買賣超股數')
 
             data = json_data['data']
             print('資料筆數: ', len(data))
@@ -43,9 +43,9 @@ class CrawlerStockChip(Crawler):
                 individual_stock = {}  # 個股的資料存放區
                 stock_symbol = each_data[0]  # stock symbol: 股票代號
                 # institution_investor_net_buy: 三大法人買賣超股數
-                institution_investor_net_buy = each_data[institution_investor_net_buy_position]
+                institutional_investor_net_buy = each_data[institutional_investor_net_buy_position]
                 individual_stock['stock_symbol'] = stock_symbol
-                individual_stock['institution_investor_net_buy'] = institution_investor_net_buy
+                individual_stock['institutional_investor_net_buy'] = institutional_investor_net_buy
                 self.data.append(individual_stock)
             return self.data
         else:
@@ -56,7 +56,7 @@ class CrawlerStockChip(Crawler):
         print('資料處理中')
         for each_data in self.data:
             # 交易量去除千分位，並轉換成數字。
-            each_data['institution_investor_net_buy'] = int(each_data['institution_investor_net_buy'].replace(',', ''))
+            each_data['institutional_investor_net_buy'] = int(each_data['institutional_investor_net_buy'].replace(',', ''))
 
     def to_database(self):
         """資料進入資料庫"""
@@ -69,11 +69,11 @@ class CrawlerStockChip(Crawler):
                 # 資料表相關操作
                 # 新增資料SQL語法
                 command = "INSERT INTO bargaining_chip" \
-                          "(stock_symbol, institution_investor_net_buy, date) " \
+                          "(stock_symbol, institutional_investor_net_buy, date) " \
                           "VALUES(%s, %s, %s)"
                 for each_data in self.data:
                     cursor.execute(command, (each_data['stock_symbol'],
-                                             each_data['institution_investor_net_buy'],
+                                             each_data['institutional_investor_net_buy'],
                                              self.params['date']))
                 # 儲存變更
                 connection.commit()
