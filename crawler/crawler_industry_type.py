@@ -1,7 +1,7 @@
 from crawler.utils import Crawler
-from datetime import datetime, timedelta
 import json
 import pymysql
+# 爬蟲休息
 import time
 import random
 
@@ -109,6 +109,8 @@ User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
                                                     method='get')
         # 只爬取資料。
         crawler_data = crawler_industry_type.main()
+        # 爬蟲休息3~6秒
+        time.sleep(random.randint(3, 6))
     # 資料清理: 將list中重複資料刪除
     handled_crawler_data = crawler_industry_type.data_processing(data=crawler_data)
     # 資料進入資料庫
