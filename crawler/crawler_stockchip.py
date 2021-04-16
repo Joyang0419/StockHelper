@@ -8,10 +8,10 @@ import random
 
 class CrawlerStockChip(Crawler):
     db_settings = {
-        "host": "192.168.56.102",
+        "host": "172.18.0.101",
         "port": 3306,
         "user": "root",
-        "password": "aa329765",
+        "password": "stockhelper",
         "db": "stock_helper",
         "charset": "utf8"
     }
@@ -130,7 +130,7 @@ User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
     headers_dict = Crawler.get_headers(headers_raw=headers_raw)
     # 資料存在起始日期: 20210502
     date_list = CrawlerStockChip.create_date(start_date=20120502,
-                                             end_date=20210413)
+                                             end_date=20210416)
 # 使用多線程，用日期每天去爬。
     for each_date in date_list:
         crawler_stock_chip = CrawlerStockChip(url='https://www.twse.com.tw/fund/T86',
