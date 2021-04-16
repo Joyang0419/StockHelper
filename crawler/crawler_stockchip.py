@@ -61,6 +61,7 @@ class CrawlerStockChip(Crawler):
     def to_database(self):
         """資料進入資料庫"""
         print('資料進入資料庫')
+        print(self.data)
         try:
             # 建立Connection物件
             connection = pymysql.connect(**self.db_settings)
@@ -79,6 +80,7 @@ class CrawlerStockChip(Crawler):
                 connection.commit()
                 cursor.close()
                 connection.close()
+                print('資料存取完成。')
                 print('========================')
         # SQL錯誤時，跳出錯誤原因。
         except Exception as ex:
@@ -129,7 +131,7 @@ User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
 
     headers_dict = Crawler.get_headers(headers_raw=headers_raw)
     # 資料存在起始日期: 20210502
-    date_list = CrawlerStockChip.create_date(start_date=20120502,
+    date_list = CrawlerStockChip.create_date(start_date=20150409,
                                              end_date=20210416)
 # 使用多線程，用日期每天去爬。
     for each_date in date_list:
