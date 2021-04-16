@@ -61,7 +61,6 @@ class CrawlerStockChip(Crawler):
     def to_database(self):
         """資料進入資料庫"""
         print('資料進入資料庫')
-        print(self.data)
         try:
             # 建立Connection物件
             connection = pymysql.connect(**self.db_settings)
