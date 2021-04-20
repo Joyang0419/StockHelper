@@ -31,14 +31,15 @@ class Crawler:
 
     # static method
     @staticmethod
-    def get_headers(headers_raw):
+    def get_dict(str_raw):
         """
-        處理headers
+        處理字串變成字典檔
+        主要處理網頁的headers跟params。
         """
-        headers = {}
-        if headers_raw is None:
-            return headers
-        for row in headers_raw.split("\n"):
-            headers[row.split(': ')[0]] = row.split(': ')[1]
-        return headers
+        handled_dict = {}
+        if str_raw is None:
+            return handled_dict
+        for row in str_raw.split("\n"):
+            handled_dict[row.split(': ')[0]] = row.split(': ')[1]
+        return handled_dict
 
