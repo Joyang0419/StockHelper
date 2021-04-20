@@ -3,13 +3,13 @@ from sqlalchemy.orm import relationship
 from crawler.database import Base, session
 
 
-class IndustryTypes(Base):
-    """table: 產業類別"""
-    __tablename__ = 'industry_types'
+class StockTypes(Base):
+    """table: 股票類別"""
+    __tablename__ = 'stock_types'
     id = Column(Integer, primary_key=True)
-    name = Column(String(length=30), nullable=False, unique=True)
+    name = Column(String(length=10), nullable=False, unique=True)
     # relationship
-    stock_basic_info = relationship("StockBasicInfo")  # IndustryTypes:StockBasicInfo=一:多
+    stock_basic_info = relationship("StockBasicInfo")  # StockTypes:StockBasicInfo = 一:多
 
     def __init__(self, name):
         """建構子"""
@@ -35,4 +35,3 @@ class IndustryTypes(Base):
         session.add(obj)
         session.commit()
         return obj
-

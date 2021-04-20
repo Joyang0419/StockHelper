@@ -6,18 +6,19 @@ from crawler.database import Base, session
 class StockBasicInfo(Base):
     """table: 股票基本資訊"""
     __tablename__ = 'stock_basic_info'
-    id = Column(Integer, primary_key=True)
-    stock_symbol = Column(String(length=20), nullable=False, unique=True)
+    stock_symbol = Column(String(length=20), primary_key=True)
+    industry_type_id = Column(Integer, ForeignKey('industry_types.id'))
+    stock_type_id = Column(Integer, ForeignKey('stock_types.id'))
     stock_name = Column(String(length=45), nullable=False)
-    industry_type_id = Column(Integer, ForeignKey('industry_types.id'), nullable=False)
     # relationship
     stock_basic_info_detail = relationship("StockBasicInfoDetail", uselist=False, back_populates="stock_basic_info")
 
-    def __init__(self, stock_symbol,  stock_name, industry_type_id):
+    def __init__(self, stock_symbol,  stock_name, industry_type_id, stock_type_id):
         """建構子"""
         self.stock_symbol = stock_symbol
         self.stock_name = stock_name
         self.industry_type_id = industry_type_id
+        self.stock_type_id = stock_type_id
 
     def update_attr(self, attr: dict):
         """動態調整欄位"""
@@ -28,7 +29,13 @@ class StockBasicInfo(Base):
 
     def __repr__(self):
         """複印"""
-        return "<StockBasicInfo(id={}, stock_symbol={}, stock_name={}, industry_type_id={})"\
-            .format(self.id, self.stock_symbol, self.stock_name, self.industry_type_id)
+        return "<StockBasicInfo(id={}, stock_symbol={}, stock_name={}, industry_type_id={}, stock_type_id={})"\
+            .format(self.id, self.stock_symbol, self.stock_name, self.industry_type_id, self.stock_type_id)
 
-
+    @classmethod
+    def create(cls, **kwargs):
+        """新增"""
+        obj = cls(**kwargs)
+        session.add(obj)
+        session.commit()
+        return obj

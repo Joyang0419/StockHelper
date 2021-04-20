@@ -142,7 +142,3 @@ User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
                                               selectType='ALL')
         crawler_stock_chip.main()
         time.sleep(random.randint(3, 6))
-
-
-
-
