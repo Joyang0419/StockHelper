@@ -29,7 +29,6 @@ class Crawler:
                                     params=self.params)
         return response
 
-    # static method
     @staticmethod
     def get_dict(str_raw):
         """
@@ -43,3 +42,17 @@ class Crawler:
             handled_dict[row.split(': ')[0]] = row.split(': ')[1]
         return handled_dict
 
+    @staticmethod
+    def splice_dataframe(dataframe: object, splice: int, part: int):
+        """
+        切割dataframe
+        splice: 切成幾等分
+        part: 你要哪一份
+        """
+        total_rows = dataframe.shape[0]
+        # 四捨五入
+        splice_rows = round(total_rows / splice)
+        df_start_index = (part - 1) * splice_rows
+        df_end_index = part * splice_rows
+        splice_df = dataframe[df_start_index:df_end_index]
+        return splice_df

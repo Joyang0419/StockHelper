@@ -142,8 +142,10 @@ x-system-kind: FUND_OLD_DRIVER'''
 
     # 讀取csv
     df = pd.read_csv(filepath_or_buffer='./stock_symbol.csv')
+    # dataframe切塊
+    handled_df = Crawler.splice_dataframe(dataframe=df, splice=6, part=1)
 
-    for index, row in df.iterrows():
+    for index, row in handled_df.iterrows():
         print('股票代號: {}'.format(row.stock_symbol))
         request_url = 'https://marketinfo.api.cnyes.com/mi/api/v1/TWS:' + str(row.stock_symbol) + ':STOCK/info'
         # 創造crawler_basic_info物件
@@ -157,5 +159,5 @@ x-system-kind: FUND_OLD_DRIVER'''
         crawler_basic_info.data_processing()
         # 資料庫存取資料
         crawler_basic_info.to_database(data=row)
-        time.sleep(random.randint(10, 15))
+        time.sleep(random.randint(5, 10))
         print('=========================')
