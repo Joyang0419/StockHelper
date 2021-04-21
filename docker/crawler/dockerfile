@@ -1,0 +1,8 @@
+# intall centos & python
+FROM docker.io/centos/python-36-centos7
+# workdir
+WORKDIR /var/www/html/
+# Install python modules
+RUN pip3 install --upgrade pip setuptools==45.2.0
+# Run shell script
+CMD ["/var/www/html/init.sh"]
