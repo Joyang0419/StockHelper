@@ -95,6 +95,7 @@ class CrawlerBasicInfo(Crawler):
         elif self.industry_type_status == 'create':
             industry_type = IndustryTypes.create(name=self.data['industryType'])
             industry_type_id = industry_type.id
+            self.industry_type_dict = IndustryTypes.get_dict_data()
         else:
             industry_type_id = self.industry_type_dict[self.data['industryType']]
 
@@ -104,6 +105,7 @@ class CrawlerBasicInfo(Crawler):
         elif self.stock_type_status == 'create':
             stock_type = StockTypes.create(name=self.data['stockType'])
             stock_type_id = stock_type.id
+            self.stock_type_dict = StockTypes.get_dict_data()
         else:
             stock_type_id = self.stock_type_dict[self.data['stockType']]
 
