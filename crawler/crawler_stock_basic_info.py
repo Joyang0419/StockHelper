@@ -95,7 +95,6 @@ class CrawlerBasicInfo(Crawler):
         elif self.industry_type_status == 'create':
             industry_type = IndustryTypes.create(name=self.data['industryType'])
             industry_type_id = industry_type.id
-            self.industry_type_dict = IndustryTypes.get_dict_data()
         else:
             industry_type_id = self.industry_type_dict[self.data['industryType']]
 
@@ -105,7 +104,6 @@ class CrawlerBasicInfo(Crawler):
         elif self.stock_type_status == 'create':
             stock_type = StockTypes.create(name=self.data['stockType'])
             stock_type_id = stock_type.id
-            self.stock_type_dict = StockTypes.get_dict_data()
         else:
             stock_type_id = self.stock_type_dict[self.data['stockType']]
 
@@ -144,10 +142,9 @@ x-system-kind: FUND_OLD_DRIVER'''
 
     # 讀取csv
     df = pd.read_csv(filepath_or_buffer='./stock_symbol.csv')
-    # dataframe切塊
-    handled_df = Crawler.splice_dataframe(dataframe=df, splice=6, part=1)
 
-    for index, row in handled_df.iterrows():
+    for index, row in df.iterrows():
+        print('csv index: {}'.format(index))
         print('股票代號: {}'.format(row.stock_symbol))
         request_url = 'https://marketinfo.api.cnyes.com/mi/api/v1/TWS:' + str(row.stock_symbol) + ':STOCK/info'
         # 創造crawler_basic_info物件
