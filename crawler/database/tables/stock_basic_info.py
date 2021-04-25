@@ -12,6 +12,7 @@ class StockBasicInfo(Base):
     stock_name = Column(String(length=45), nullable=False)
     # relationship
     stock_basic_info_detail = relationship("StockBasicInfoDetail", uselist=False, back_populates="stock_basic_info")
+    stock_technical_data = relationship("StockTechnicalData")  # StockBasicInfo:StockTechnicalData = 一:多
 
     def __init__(self, stock_symbol,  stock_name, industry_type_id, stock_type_id):
         """建構子"""
@@ -31,6 +32,13 @@ class StockBasicInfo(Base):
         """複印"""
         return "<StockBasicInfo(id={}, stock_symbol={}, stock_name={}, industry_type_id={}, stock_type_id={})"\
             .format(self.id, self.stock_symbol, self.stock_name, self.industry_type_id, self.stock_type_id)
+
+    def append_stock_technical_data(self, stock_technical_data):
+        """依靠relationship add stock_technical_data"""
+        self.stock_technical_data.append(stock_technical_data)
+        session.add(self)
+        session.commit()
+
 
     @classmethod
     def create(cls, **kwargs):
