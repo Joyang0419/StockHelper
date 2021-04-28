@@ -99,6 +99,8 @@ x-system-kind: FUND_OLD_DRIVER'''
     end_timestamp = 1451606400  # 結束日期's timestamp
     # 讀取csv
     df = pd.read_csv(filepath_or_buffer='./stock_symbol.csv')
+    # bug出現在代號910861
+    df = df[13146:]
     for index, row in df.iterrows():
         request_symbol = 'TWS:{}:STOCK'.format(row.stock_symbol)  # 進入url的股票代號
 
