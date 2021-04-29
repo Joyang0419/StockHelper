@@ -28,6 +28,7 @@ class CrawlerHistoryTechnicalData(Crawler):
         json_data = json.loads(response_text)
         print('抓取資料中')
         data = json_data['data']
+        print(data)
         print('資料筆數: ', len(data))
         self.data = data
         return self.data
@@ -99,25 +100,25 @@ x-system-kind: FUND_OLD_DRIVER'''
     end_timestamp = 1451606400  # 結束日期's timestamp
     # 讀取csv
     df = pd.read_csv(filepath_or_buffer='./stock_symbol.csv')
-    # bug出現在代號910861
-    df = df[13146:]
+    # bug出現在代號2356
+    df = df[13309:]
     for index, row in df.iterrows():
         request_symbol = 'TWS:{}:STOCK'.format(row.stock_symbol)  # 進入url的股票代號
 
         request_url = 'https://ws.api.cnyes.com/ws/api/v1/charting/history?' \
                       'from={}' \
                       '&to={}'.format(start_timestamp, end_timestamp)
-        crawler_basic_info = CrawlerHistoryTechnicalData(url=request_url,
+        crawler_history_technical_data = CrawlerHistoryTechnicalData(url=request_url,
                                                          headers=headers_dict,
                                                          method='get',
                                                          resolution='D',
                                                          symbol=request_symbol,
                                                          quote=1)
-        response = crawler_basic_info.request()
+        response = crawler_history_technical_data.request()
         # 拿取資料
-        crawler_basic_info.get_data(response_text=response.text)
+        crawler_history_technical_data.get_data(response_text=response.text)
         # 處理資料
-        processing_data = crawler_basic_info.data_processing()
+        processing_data = crawler_history_technical_data.data_processing()
         # 資料進入資料庫
         for each_date_data in processing_data:
             CrawlerHistoryTechnicalData.to_database(stock_symbol=row.stock_symbol, data=each_date_data)
