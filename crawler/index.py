@@ -1,1 +1,1 @@
-crawler_stock_basic_info.py
+crawler_history_technical_data.py
