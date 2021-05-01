@@ -1,8 +1,8 @@
 {
-  "name": "stockhelper",
+  "name": "vue",
   "version": "1.0.0",
-  "description": "A Vue.js project",
-  "author": "joyang0419@gmail.com",
+  "description": "stockhelper's project",
+  "author": "Joy",
   "private": true,
   "scripts": {
     "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",

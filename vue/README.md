@@ -1,6 +1,6 @@
-# stockhelper
+# vue
 
-> A Vue.js project
+> stockhelper's project
 
 ## Build Setup
 
