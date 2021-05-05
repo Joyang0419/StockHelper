@@ -15,7 +15,6 @@ def create_app(config_name):
     app = Flask(__name__)
     # 將config.py內定義的組態類別，其所儲存的組態設定直接匯入App
     app.config.from_object(config[config_name])
-    print(app.config['DEBUG'])
     # print(config[config_name].DEBUG)
     # App初始化工具，使用init_app()
     config[config_name].init_app(app)

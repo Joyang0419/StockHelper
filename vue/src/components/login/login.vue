@@ -6,7 +6,7 @@
                 <img alt="Winner" class="center" src="@/assets/login/images/winner.jpg">
                 <h2 class="text-center">Login StockHelper</h2>
                 <form class="login-form">
-                    <div class="g-signin2" data-width="300px" data-height="50" data-longtitle="true"></div>
+                    <div class="g-signin2" data-width="300px" data-height="50" data-longtitle="true" data-onsuccess="onSignIn"></div>
                 </form>
                 <div class="copy-text">Created by <i class="fa fa-heart"></i> by StockHelper</div>
             </div>
@@ -32,6 +32,11 @@ export default {
         var google_login_Script = document.createElement('script');
         google_login_Script.setAttribute('src', 'https://apis.google.com/js/platform.js?onload=renderButton');
         document.body.appendChild(google_login_Script);
+    },
+    methods: {
+      qqq: function () {
+        alert('qqq')
+      }
     }
 }
 </script>
