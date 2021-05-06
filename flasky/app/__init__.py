@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_mail import Mail
 from flask_sqlalchemy import SQLAlchemy
+from flask_restful import Resource, Api
 # 匯入config.py
 from config import config
 
@@ -8,6 +9,7 @@ from config import config
 # 工具(尚未初始化)
 db = SQLAlchemy()
 mail = Mail()
+api = Api()
 
 
 def create_app(config_name):
@@ -20,27 +22,9 @@ def create_app(config_name):
     config[config_name].init_app(app)
     db.init_app(app)
     mail.init_app(app)
-    """
-    routes: 註冊blueprints
-    網站:
-    - mains
-    - websites
-    - admins
-    APIs 
-    """
-    # 主要網站
-    # mains
-    from .views.mains import mains as mains_blueprint
-    app.register_blueprint(mains_blueprint)
-    # websites
-    from .views.mains.websites import websites as websites_blueprint
-    app.register_blueprint(websites_blueprint)
-    # admins
-    from .views.mains.admins import admins as admins_blueprint
-    app.register_blueprint(admins_blueprint)
-    # API
-    from .views.APIs import apis as apis_blueprint
-    app.register_blueprint(apis_blueprint)
+    # 引入api
+    from app.views.apis import api_blueprint
+    app.register_blueprint(api_blueprint, url_prefix='/api')
 
     return app
 

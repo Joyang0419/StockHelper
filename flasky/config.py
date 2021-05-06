@@ -23,6 +23,10 @@ class Config:
     MAIL_DEFAULT_SENDER = (os.getenv('MAIL_USER'), os.getenv('MAIL_USERNAME'))
     # Database
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    # 上傳檔案位置
+    UPLOAD_FOLDER = 'app/static/upload/'
+    # 允許檔案格式
+    ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 
     # 實作空的init_app()方法
     @staticmethod
