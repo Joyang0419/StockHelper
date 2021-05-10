@@ -29,6 +29,7 @@ export default {
       }
     },
     mounted: function () {
+        // 渲染google login 按鈕
         var google_login_Script = document.createElement('script');
         google_login_Script.setAttribute('src', 'https://apis.google.com/js/platform.js?onload=renderButton');
         document.body.appendChild(google_login_Script);

@@ -85,12 +85,37 @@
 
 <script>
 export default {
-  name: 'HelloWorld',
-  data () {
-    return {
-      msg: 'Welcome to Your Vue.js App'
+    name: 'HelloWorld',
+    data () {
+      return {
+        msg: 'Welcome to Your Vue.js App'
+      }
+    },
+    created: function () {
+        // Connect API
+        var google_token = this.get_cookie('google_token')
+        axios({
+            method: 'get',
+            url: 'http://www.stockhelper.com.tw:8889/api/users',
+            params: { 'google_token': google_token}
+        })
+        .then(function (response) {
+            console.log(response);
+            if (response.data['login_status'] === 0) {
+                // 轉頁
+                 location.href = response.data['url']
+            }
+        })
+        .catch(function (error) {
+            console.log(error);
+        })
+    },
+    methods: {
+        get_cookie: function (name) {
+            var match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+            if (match) return match[2];
+        }
     }
-  }
 }
 </script>
 

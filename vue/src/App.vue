@@ -52,7 +52,9 @@
             <nav class="navbar navbar-expand-lg navbar-light bg-light">
                 <div class="container-fluid">
                     <img class="stock_increase_image" src="@/assets/stock_increase.png" alt="stock_increase">
-                    <h2 class="text-center red_text">StockHelper</h2>
+                    <a href="http://www.stockhelper.com.tw:8080/">
+                        <h2 class="text-center red_text">StockHelper</h2>
+                    </a>
                     <div class="collapse navbar-collapse" id="navbarSupportedContent">
                         <ul class="nav navbar-nav ml-auto">
                             <li class="nav-item active">
@@ -79,7 +81,7 @@
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
-              <button type="button" class="btn btn-primary" data-dismiss="modal">Yes</button>
+              <button type="button" class="btn btn-primary" data-dismiss="modal" @click="sign_out()">Yes</button>
             </div>
           </div>
         </div>
@@ -89,31 +91,35 @@
 
 <script>
 export default {
-  name: 'App',
-  data: function () {
-      return {
-        sidebar_Status: false,
-      }
-  },
-  mounted: function () {
-      var jQueryScript = document.createElement('script');
-      jQueryScript.setAttribute('src', 'https://code.jquery.com/jquery-3.3.1.slim.min.js');
-      document.body.appendChild(jQueryScript);
+    name: 'App',
+    data: function () {
+        return {
+          sidebar_Status: false,
+        }
+    },
+    created: function () {
 
-      var popperScript = document.createElement('script');
-      popperScript.setAttribute('src', 'https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js');
-      document.body.appendChild(popperScript);
+    },
+    mounted: function () {
 
-      var BootstrapScript = document.createElement('script');
-      BootstrapScript.setAttribute('src', 'https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js');
-      document.body.appendChild(BootstrapScript);
-  },
-  methods: {
-      toggle_sidebar: function () {
-        this.sidebar_Status = !this.sidebar_Status
-      }
-
-  }
+    },
+    methods: {
+        toggle_sidebar: function () {
+          this.sidebar_Status = !this.sidebar_Status
+        },
+        sign_out: function () {
+            gapi.auth2.init()
+            gapi.auth2.getAuthInstance()
+            var auth2 = gapi.auth2.getAuthInstance();
+            auth2.signOut()
+            // 轉頁
+            this.delete_cookie('google_token')
+            location.href = 'http://www.stockhelper.com.tw:8080/login'
+        },
+        delete_cookie:  function(name) {
+            document.cookie = name + '=;expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+        }
+    }
 }
 </script>
 

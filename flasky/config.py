@@ -25,8 +25,8 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     # 上傳檔案位置
     UPLOAD_FOLDER = 'app/static/upload/'
-    # 允許檔案格式
-    ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
+    # google oauth
+    GOOGLE_OAUTH2_CLIENT_ID = os.environ.get('GOOGLE_OAUTH2_CLIENT_ID')
 
     # 實作空的init_app()方法
     @staticmethod
