@@ -59,7 +59,7 @@
                     <div class="collapse navbar-collapse" id="navbarSupportedContent">
                         <ul class="nav navbar-nav ml-auto">
                             <li class="nav-item active">
-                                <a class="nav-link" href="#" data-toggle="modal" data-target="#exampleModal">LogOut</a>
+                                <router-link class="nav-link" to="" data-toggle="modal" data-target="#exampleModal">LogOut</router-link>
                             </li>
                         </ul>
                     </div>
@@ -68,7 +68,7 @@
             <router-view/>
         </div>
     </div>
-      <!-- Modal -->
+    <!-- Modal -->
     <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
           <div class="modal-content">
