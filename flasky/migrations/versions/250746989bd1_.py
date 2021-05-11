@@ -24,7 +24,6 @@ def upgrade():
     sa.Column('email', sa.String(length=120), nullable=False),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('email'),
-    sa.UniqueConstraint('username')
     )
     # ### end Alembic commands ###
 

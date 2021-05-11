@@ -5,8 +5,9 @@
         <nav id="sidebar" :class="{active: sidebar_Status}">
           <!-- User Info-->
           <div class="sidenav-header-inner text-center">
-              <img src="@/assets/user_images/joyang0419@gmail.com.jpg" alt="user_image" class="img-fluid rounded-circle user_image">
-              <h6 class="#homeSubmenu" aria-expanded="false">Nathan Andrews</h6>
+              <img src="@/assets/anonymous.jpg" alt="user_image"  class="img-fluid rounded-circle user_image" v-if="user_image_url === ''">
+              <img :src="user_image_url" alt="user_image"  class="img-fluid rounded-circle user_image" v-else>
+              <h6 class="#homeSubmenu" aria-expanded="false">{{ username }}</h6>
               <label class="switch">
                   <input type="checkbox" checked class="btn btn-info" @click="toggle_sidebar()">
                   <span class="slider round"></span>
@@ -95,10 +96,12 @@ export default {
     data: function () {
         return {
           sidebar_Status: false,
+          username: this.$store.getters.username,
+          user_image_url: ''
         }
     },
     created: function () {
-
+        this.get_user_info()
     },
     mounted: function () {
 
@@ -118,6 +121,31 @@ export default {
         },
         delete_cookie:  function(name) {
             document.cookie = name + '=;expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+        },
+        get_cookie: function (name) {
+            var match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+            if (match) return match[2];
+        },
+        get_user_info: function() {
+            // Connect API
+        var google_token = this.get_cookie('google_token')
+        var parent_this = this
+        var vuex_store = this.$store
+            axios({
+                method: 'get',
+                url: 'http://www.stockhelper.com.tw:8889/api/users',
+                params: { 'google_token': google_token}
+            })
+            .then(function (response) {
+                if (response.data['login_status'] === 1) {
+                    vuex_store.dispatch('update_user_info', response.data)
+                    parent_this.username = vuex_store.getters.username
+                    parent_this.user_image_url = vuex_store.getters.user_image_url
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+            })
         }
     }
 }
