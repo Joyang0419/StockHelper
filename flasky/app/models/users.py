@@ -1,24 +1,20 @@
 from app import db
+from .db_abstract import DBAbstract
 # login manager
 from flask_login import UserMixin
 from app import login_manager
 
 
-class Users(db.Model, UserMixin):
+class Users(DBAbstract, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
+    # relationship
+    # users: trade_records = one : many
+    trade_records = db.relationship('TradeRecords', backref='users', lazy=True)
 
     def __repr__(self):
         return '<User %r>' % self.username
-
-    @classmethod
-    def create(cls, **kwargs):
-        """新增"""
-        obj = cls(**kwargs)
-        db.session.add(obj)
-        db.session.commit()
-        return obj
 
     @login_manager.user_loader
     def user_loader(user_id):

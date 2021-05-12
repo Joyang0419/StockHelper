@@ -3,7 +3,11 @@ from flask_migrate import Migrate
 from dotenv import load_dotenv
 from app import create_app, db
 # 註冊models
-from app.models import users
+from app.models import (
+    users,
+    stock_basic_info,
+    trade_records
+)
 
 # 抓取env檔案位置。
 dotenv_path = os.path.join(os.path.dirname(__file__), '.env')

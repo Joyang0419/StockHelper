@@ -105,8 +105,7 @@
     font-size: 25px;
     color: #DE6262;}
 
-
-td, tr {
-  /*text-align: center;*/
+.h2_padding {
+  padding-right: 100px
 }
 
