@@ -13,6 +13,7 @@
   .panel .panel-heading,
   .panel .panel-body,
   .panel .panel-footer {
+    padding-top: 10px ;
     padding-left: 25px;
     padding-right: 25px; }
   .panel .panel-heading {
@@ -106,6 +107,6 @@
 
 
 td, tr {
-  text-align: center;
+  /*text-align: center;*/
 }
 

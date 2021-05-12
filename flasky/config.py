@@ -36,7 +36,7 @@ class Config:
 
 # 子類別：分別定義特定組態專屬的設定，讓app在各個組態設置中使用不同的資料庫
 class DevelopmentConfig(Config):
-    DEBUG = False
+    DEBUG = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI')
 
 

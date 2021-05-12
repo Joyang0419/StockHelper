@@ -15,7 +15,6 @@ from marshmallow import ValidationError
 
 
 class UsersApi (Resource):
-
     def get(self):
         """
         確認使用者登入
