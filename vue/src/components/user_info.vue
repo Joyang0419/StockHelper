@@ -93,6 +93,25 @@
             </button>
           </div>
           <div class="modal-body">
+            <fieldset class="form-group">
+              <div class="row">
+                <legend class="col-form-label col-sm-3 pt-0">交易動作</legend>
+                <div class="col-sm-8">
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="gridRadios" id="gridRadios1" value="option1" checked>
+                    <label class="form-check-label" for="gridRadios1">
+                      買進
+                    </label>
+                  </div>
+                  <div class="form-check disabled">
+                    <input class="form-check-input" type="radio" name="gridRadios" id="gridRadios3" value="option3">
+                    <label class="form-check-label" for="gridRadios3">
+                      賣出
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </fieldset>
             <form>
               <div class="form-group row">
                 <label for="inputEmail3" class="col-sm-3 col-form-label">股票代號</label>
@@ -118,25 +137,12 @@
                   <input class="form-control" id="inputPassword3" placeholder="交易股數">
                 </div>
               </div>
-              <fieldset class="form-group">
-                <div class="row">
-                  <legend class="col-form-label col-sm-3 pt-0">交易動作</legend>
-                  <div class="col-sm-8">
-                    <div class="form-check">
-                      <input class="form-check-input" type="radio" name="gridRadios" id="gridRadios1" value="option1" checked>
-                      <label class="form-check-label" for="gridRadios1">
-                        買進
-                      </label>
-                    </div>
-                    <div class="form-check disabled">
-                      <input class="form-check-input" type="radio" name="gridRadios" id="gridRadios3" value="option3">
-                      <label class="form-check-label" for="gridRadios3">
-                        賣出
-                      </label>
-                    </div>
-                  </div>
+              <div class="form-group row">
+                <label for="inputPassword3" class="col-sm-3 col-form-label">交易成本</label>
+                <div class="col-sm-8">
+                  <input class="form-control" id="inputPassword3" placeholder="交易股數">
                 </div>
-              </fieldset>
+              </div>
             </form>
           </div>
           <div class="modal-footer">
