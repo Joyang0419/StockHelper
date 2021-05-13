@@ -97,26 +97,27 @@
               <div class="row">
                 <legend class="col-form-label col-sm-3 pt-0">交易動作</legend>
                 <div class="col-sm-8">
-                  <div class="form-check">
-                    <input class="form-check-input" type="radio" name="gridRadios" id="gridRadios1" value="option1" checked>
-                    <label class="form-check-label" for="gridRadios1">
-                      買進
-                    </label>
-                  </div>
-                  <div class="form-check disabled">
-                    <input class="form-check-input" type="radio" name="gridRadios" id="gridRadios3" value="option3">
-                    <label class="form-check-label" for="gridRadios3">
-                      賣出
+                  <div class="form-check" v-for="(item, index) in activity_list">
+                    <input class="form-check-input" type="radio" :name="'activity' + (index)" id="'activity' + (index)" :value="item" v-model="activity">
+                    <label class="form-check-label" :for="'activity' + (index)">
+                      {{ item }}
                     </label>
                   </div>
                 </div>
               </div>
             </fieldset>
             <form>
+              <!-- activity: buy -> 自行輸入股票代號； sell -> 下拉式選單-->
               <div class="form-group row">
-                <label for="inputEmail3" class="col-sm-3 col-form-label">股票代號</label>
+                <label for="stock_symbol" class="col-sm-3 col-form-label">股票代號</label>
                 <div class="col-sm-8">
-                  <input type="email" class="form-control" id="inputEmail3" placeholder="股票代號">
+                  <input type="text" class="form-control" id="stock_symbol" placeholder="股票代號"
+                         :disabled="activity == ''" v-if="activity != 'Sell'" @change="onchange_stock_symbol()">
+                  <select class="form-control" name="coop_brand" id="stock_symbol" placeholder="股票代號"
+                          v-if="activity == 'Sell'">
+                      <option value="" >請選擇賣出股票</option>
+                      <option :value="item"  v-for="(item, index) in stock_symbol_list">{{ item }}</option>
+                  </select>
                 </div>
               </div>
               <div class="form-group row">
@@ -161,7 +162,9 @@ export default {
     name: 'HelloWorld',
     data () {
       return {
-        msg: 'Welcome to Your Vue.js App',
+        activity_list: ['Buy', 'Sell'],
+        activity: null,
+        stock_symbol_list: ['2330', '2335']
       }
     },
     created: function () {
@@ -187,6 +190,9 @@ export default {
         get_cookie: function (name) {
             var match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
             if (match) return match[2];
+        },
+        onchange_stock_symbol: function () {
+          alert('123')
         }
     }
 }
