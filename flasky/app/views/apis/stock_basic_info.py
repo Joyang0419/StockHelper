@@ -7,7 +7,7 @@ from app.models.stock_basic_info import StockBasicInfo
 class StockBasicInfoApi(Resource):
     def get(self):
         b = StockBasicInfo.query.with_entities(StockBasicInfo.stock_name).all()
-        return str(b[0][0])
+        return str(b[1][0])
         qq = []
         for i in b:
             qq.append(i.stock_symbol)
@@ -26,16 +26,9 @@ class StockBasicInfoApi(Resource):
         """
         # 交易動作: 買
         activity = json_data['activity']
-        if activity == 'buy':
-            data = StockBasicInfo.query.all()
-            stock_symbol_list = []
-            stock_name_list = []
-            for i in data:
-                stock_symbol_list.append(i.stock_symbol)
-                stock_name_list.append(i.stock_name)
-            response = {
-                'stock_symbol_list': stock_symbol_list,
-                'stock_name_list': stock_name_list
-            }
-            return response
+        if activity == 'Buy':
+            stock = StockBasicInfo.query.filter_by(stock_symbol=json_data['stock_symbol']).first()
+            if stock is None:
+                return None
+            return stock.stock_name
 

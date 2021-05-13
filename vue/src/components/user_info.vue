@@ -98,7 +98,7 @@
                 <legend class="col-form-label col-sm-3 pt-0">交易動作</legend>
                 <div class="col-sm-8">
                   <div class="form-check" v-for="(item, index) in activity_list">
-                    <input class="form-check-input" type="radio" :name="'activity' + (index)" id="'activity' + (index)" :value="item" v-model="activity">
+                    <input class="form-check-input" type="radio" :name="'activity' + (index)" id="'activity' + (index)" :value="item" v-model="form.activity">
                     <label class="form-check-label" :for="'activity' + (index)">
                       {{ item }}
                     </label>
@@ -111,45 +111,52 @@
               <div class="form-group row">
                 <label for="stock_symbol" class="col-sm-3 col-form-label">股票代號</label>
                 <div class="col-sm-8">
-                  <input type="text" class="form-control" id="stock_symbol" placeholder="股票代號"
-                         :disabled="activity == ''" v-if="activity != 'Sell'" @change="onchange_stock_symbol()">
-                  <select class="form-control" name="coop_brand" id="stock_symbol" placeholder="股票代號"
-                          v-if="activity == 'Sell'">
-                      <option value="" >請選擇賣出股票</option>
+                  <input type="text" name="stock_symbol" class="form-control" id="stock_symbol" placeholder="股票代號" v-validate="{required: true}"
+                         :disabled="form.activity == ''" v-if="form.activity != 'Sell'" @change="onchange_stock_symbol()" v-model="form.stock_symbol">
+                  <select class="form-control" name="stock_symbol" id="stock_symbol" placeholder="股票代號"
+                          v-if="form.activity == 'Sell'" v-model="form.stock_symbol">
+                      <option value="">請選擇賣出股票</option>
                       <option :value="item"  v-for="(item, index) in stock_symbol_list">{{ item }}</option>
                   </select>
+                  <span class="warning_word" v-if="errors.first('stock_symbol')">{{ errors.first('stock_symbol') }}</span>
                 </div>
               </div>
               <div class="form-group row">
-                <label for="inputPassword3" class="col-sm-3 col-form-label">股票名稱</label>
+                <label for="stock_name" class="col-sm-3 col-form-label">股票名稱</label>
                 <div class="col-sm-8">
-                  <input class="form-control" id="inputPassword3" placeholder="股票名稱" disabled>
+                  <input class="form-control" id="stock_name" name="stock_name" placeholder="股票名稱" readonly
+                         v-model="form.stock_name" v-validate="{required: true}">
+                  <span class="warning_word" v-if="errors.first('stock_name')">{{ errors.first('stock_name') }}</span>
                 </div>
               </div>
               <div class="form-group row">
-                <label for="inputPassword3" class="col-sm-3 col-form-label">交易單價</label>
+                <label for="price" class="col-sm-3 col-form-label">交易單價</label>
                 <div class="col-sm-8">
-                  <input class="form-control" id="inputPassword3" placeholder="交易單價">
+                  <input class="form-control" id="price" name="price"
+                         v-model="form.price" placeholder="交易單價" v-validate="{required: true, integer: true}" @blur="calculate_total_cost()">
+                  <span class="warning_word" v-if="errors.first('price')">{{ errors.first('price') }}</span>
                 </div>
               </div>
               <div class="form-group row">
-                <label for="inputPassword3" class="col-sm-3 col-form-label">交易股數</label>
+                <label for="volume" class="col-sm-3 col-form-label">交易股數</label>
                 <div class="col-sm-8">
-                  <input class="form-control" id="inputPassword3" placeholder="交易股數">
+                  <input class="form-control" id="volume" name="volume" placeholder="交易股數"
+                         v-model="form.volume" v-validate="{required: true, integer: true}" @blur="calculate_total_cost()">
+                  <span class="warning_word" v-if="errors.first('volume')">{{ errors.first('volume') }}</span>
                 </div>
               </div>
-              <div class="form-group row">
-                <label for="inputPassword3" class="col-sm-3 col-form-label">交易成本</label>
+              <div class="form-group row" v-if="form.activity == 'Sell'">
+                <label for="cost" class="col-sm-3 col-form-label">交易成本</label>
                 <div class="col-sm-8">
-                  <input class="form-control" id="inputPassword3" placeholder="交易股數">
+                  <input class="form-control" id="cost" v-model="form.cost" placeholder="交易成本" readonly>
                 </div>
               </div>
             </form>
           </div>
           <div class="modal-footer">
-            <h2 class="h2_padding">成交金額: 123</h2>
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
-              <button type="button" class="btn btn-primary" data-dismiss="modal" @click="sign_out()">Yes</button>
+            <h2 class="h2_padding" v-if="form.price != 0 & form.volume != 0">成交金額: {{ total_cost }}</h2>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="sign_out()">Yes</button>
           </div>
         </div>
       </div>
@@ -163,8 +170,16 @@ export default {
     data () {
       return {
         activity_list: ['Buy', 'Sell'],
-        activity: null,
-        stock_symbol_list: ['2330', '2335']
+        stock_symbol_list: ['2330', '2335'],
+        total_cost: 0,
+        form: {
+          stock_symbol: '',
+          stock_name: '',
+          activity: '',
+          volume: 0,
+          price: 0,
+          cost: 0
+        }
       }
     },
     created: function () {
@@ -185,6 +200,26 @@ export default {
         .catch(function (error) {
             console.log(error);
         })
+        // vee-validate custom words
+        const dict = {
+        custom: {
+                stock_symbol: {
+                    required: '請輸入股票代號。',
+                },
+                stock_name: {
+                  required: '股票代號有誤。'
+                },
+                volume: {
+                  required: '請輸入交易量。',
+                  integer: '請輸入數字。'
+                },
+                price: {
+                  required: '請輸入單價。',
+                  integer: '請輸入數字。'
+                }
+            }
+        };
+        this.$validator.localize('en', dict);
     },
     methods: {
         get_cookie: function (name) {
@@ -192,7 +227,29 @@ export default {
             if (match) return match[2];
         },
         onchange_stock_symbol: function () {
-          alert('123')
+          const vuex_store = this.$store
+          parent.this = this
+          // Connect API
+          axios({
+              method: 'post',
+              url: 'http://www.stockhelper.com.tw:8889/api/stock_basic_info',
+              data: {
+                user_email: vuex_store.getters.user_email,
+                stock_symbol: this.form.stock_symbol,
+                activity: this.form.activity,
+              }
+          })
+          .then(function (response) {
+              console.log(response);
+              parent.this.form.stock_name = response.data
+          })
+          .catch(function (error) {
+              console.log(error);
+          })
+        },
+        calculate_total_cost: function () {
+          console.log(this.form.price)
+          this.total_cost = this.form.price * this.form.volume
         }
     }
 }

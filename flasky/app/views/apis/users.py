@@ -54,6 +54,7 @@ class UsersApi (Resource):
         # 使用者存在，更改回傳值。
         response['login_status'] = 1
         response['username'] = user.username
+        response['user_email'] = user.email
         response['user_image_url'] = user_image_url
         return response
 

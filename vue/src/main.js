@@ -7,7 +7,10 @@ import store from './store' //註冊store
 
 Vue.config.productionTip = false
 
+// 狀態管理器
 Vue.use(Vuex);
+// 驗證
+Vue.use(VeeValidate);
 
 /* eslint-disable no-new */
 new Vue({

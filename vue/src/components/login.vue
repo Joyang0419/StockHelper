@@ -35,9 +35,7 @@ export default {
         document.body.appendChild(google_login_Script);
     },
     methods: {
-      qqq: function () {
-        alert('qqq')
-      }
+
     }
 }
 </script>
