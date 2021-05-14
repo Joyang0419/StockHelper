@@ -98,7 +98,8 @@
                 <legend class="col-form-label col-sm-3 pt-0">交易動作</legend>
                 <div class="col-sm-8">
                   <div class="form-check" v-for="(item, index) in activity_list">
-                    <input class="form-check-input" type="radio" :name="'activity' + (index)" id="'activity' + (index)" :value="item" v-model="form.activity">
+                    <input class="form-check-input" type="radio"
+                           :name="'activity' + (index)" id="'activity' + (index)" :value="item" v-model="form.activity" @change="onchange_stock_activity()">
                     <label class="form-check-label" :for="'activity' + (index)">
                       {{ item }}
                     </label>
@@ -112,9 +113,9 @@
                 <label for="stock_symbol" class="col-sm-3 col-form-label">股票代號</label>
                 <div class="col-sm-8">
                   <input type="text" name="stock_symbol" class="form-control" id="stock_symbol" placeholder="股票代號" v-validate="{required: true}"
-                         :disabled="form.activity == ''" v-if="form.activity != 'Sell'" @change="onchange_stock_symbol()" v-model="form.stock_symbol">
+                         :readonly="form.activity == ''" v-if="form.activity != 'Sell'" @change="onchange_stock_symbol()" v-model="stock_symbol">
                   <select class="form-control" name="stock_symbol" id="stock_symbol" placeholder="股票代號"
-                          v-if="form.activity == 'Sell'" v-model="form.stock_symbol">
+                          v-if="form.activity == 'Sell'" v-model="stock_symbol" @change="onchange_stock_symbol()">
                       <option value="">請選擇賣出股票</option>
                       <option :value="item"  v-for="(item, index) in stock_symbol_list">{{ item }}</option>
                   </select>
@@ -125,7 +126,7 @@
                 <label for="stock_name" class="col-sm-3 col-form-label">股票名稱</label>
                 <div class="col-sm-8">
                   <input class="form-control" id="stock_name" name="stock_name" placeholder="股票名稱" readonly
-                         v-model="form.stock_name" v-validate="{required: true}">
+                         v-model="stock_name" v-validate="{required: true}">
                   <span class="warning_word" v-if="errors.first('stock_name')">{{ errors.first('stock_name') }}</span>
                 </div>
               </div>
@@ -156,7 +157,7 @@
           <div class="modal-footer">
             <h2 class="h2_padding" v-if="form.price != 0 & form.volume != 0">成交金額: {{ total_cost }}</h2>
             <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
-            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="sign_out()">Yes</button>
+            <button type="button" class="btn btn-primary" @click="checkForm()">Yes</button>
           </div>
         </div>
       </div>
@@ -166,15 +167,17 @@
 
 <script>
 export default {
-    name: 'HelloWorld',
+    name: 'user_info',
     data () {
       return {
+        user_email: '',
         activity_list: ['Buy', 'Sell'],
-        stock_symbol_list: ['2330', '2335'],
+        stock_symbol_list: [2330, '2335'],
+        stock_symbol: '',
+        stock_name: '',
         total_cost: 0,
         form: {
-          stock_symbol: '',
-          stock_name: '',
+          stock_basic_info_id: '',
           activity: '',
           volume: 0,
           price: 0,
@@ -185,16 +188,17 @@ export default {
     created: function () {
         // Connect API
         var google_token = this.get_cookie('google_token')
+        parent.this = this
         axios({
             method: 'get',
             url: 'http://www.stockhelper.com.tw:8889/api/users',
             params: { 'google_token': google_token}
         })
         .then(function (response) {
-            console.log(response);
+            parent.this.user_email = response.data['user_email']
             if (response.data['login_status'] === 0) {
-                // 轉頁
-                 location.href = response.data['url']
+              // 轉頁
+              location.href = response.data['url']
             }
         })
         .catch(function (error) {
@@ -226,6 +230,26 @@ export default {
             var match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
             if (match) return match[2];
         },
+        onchange_stock_activity: function () {
+          const vuex_store = this.$store
+          parent.this = this
+          // Connect API
+          axios({
+              method: 'post',
+              url: 'http://www.stockhelper.com.tw:8889/api/stock_basic_info',
+              data: {
+                action: 'get_stock_symbol_list',
+                activity: this.form.activity,
+                user_email: this.user_email,
+              }
+          })
+          .then(function (response) {
+              console.log(response);
+          })
+          .catch(function (error) {
+              console.log(error);
+          })
+        },
         onchange_stock_symbol: function () {
           const vuex_store = this.$store
           parent.this = this
@@ -234,23 +258,57 @@ export default {
               method: 'post',
               url: 'http://www.stockhelper.com.tw:8889/api/stock_basic_info',
               data: {
-                user_email: vuex_store.getters.user_email,
-                stock_symbol: this.form.stock_symbol,
-                activity: this.form.activity,
+                action: 'get_stock_name',
+                stock_symbol: this.stock_symbol,
               }
           })
           .then(function (response) {
               console.log(response);
-              parent.this.form.stock_name = response.data
+              parent.this.stock_name = response.data['stock_name']
+              parent.this.form.stock_basic_info_id = response.data['stock_basic_info_id']
           })
           .catch(function (error) {
               console.log(error);
           })
         },
         calculate_total_cost: function () {
-          console.log(this.form.price)
           this.total_cost = this.form.price * this.form.volume
+        },
+        checkForm: function() {
+          this.$validator.validate().then(valid => {
+						if (valid) {
+              // this.submitForm(e);
+              $('#CreateTrade').modal('hide')
+              this.submitForm()
+              return true
+            }
+            // 滑到error的地方
+            document.getElementById(this.$validator.errors.items[0].field).scrollIntoView(false);
+            return true
+					});
+				},
+        submitForm: function() {
+          if (this.form.activity === 'Buy') {
+            this.form.cost = this.form.price
+          }
+          console.log(this.form)
+          axios({
+            method: 'post',
+            url: 'http://www.stockhelper.com.tw:8889/api/stock_basic_info',
+            data: {
+              action: 'submit',
+              user_email: this.user_email,
+              form: this.form,
+            }
+          })
+          .then(function (response) {
+              console.log(response.data);
+          })
+          .catch(function (error) {
+              console.log(error);
+          })
         }
+
     }
 }
 </script>

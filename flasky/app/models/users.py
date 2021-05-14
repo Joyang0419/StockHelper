@@ -16,6 +16,13 @@ class Users(DBAbstract, UserMixin):
     def __repr__(self):
         return '<User %r>' % self.username
 
+    def create_trade_record(self, trade_record):
+        """創造交易紀錄"""
+        self.trade_records.append(trade_record)
+        db.session.add(self)
+        db.session.commit()
+
+
     @login_manager.user_loader
     def user_loader(user_id):
         return Users.query.get(int(user_id))
