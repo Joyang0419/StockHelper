@@ -12,6 +12,8 @@ import urllib.request
 # schemas
 from ..schemas.users_schema import UsersSchema
 from marshmallow import ValidationError
+# utils
+from .utils import google_log_in
 
 
 class UsersApi (Resource):
@@ -34,16 +36,7 @@ class UsersApi (Resource):
         google_oauth_client_id = current_app.config['GOOGLE_OAUTH2_CLIENT_ID']
 
         # google驗證
-        try:
-            # Specify the GOOGLE_OAUTH2_CLIENT_ID of the app that accesses the backend:
-            id_info = id_token.verify_oauth2_token(
-                google_token,
-                requests.Request(),
-                google_oauth_client_id
-            )
-        except ValueError:
-            # Invalid token
-            return response
+        id_info = google_log_in(google_token, google_oauth_client_id, response)
         # 從table: users get data
         user = Users.query.filter_by(email=id_info['email']).first()
         # 圖片網址

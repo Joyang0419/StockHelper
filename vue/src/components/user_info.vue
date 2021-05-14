@@ -99,7 +99,7 @@
                 <div class="col-sm-8">
                   <div class="form-check" v-for="(item, index) in activity_list">
                     <input class="form-check-input" type="radio"
-                           :name="'activity' + (index)" id="'activity' + (index)" :value="item" v-model="form.activity" @change="onchange_stock_activity()">
+                           :name="'activity' + (index)" id="'activity' + (index)" :value="item" v-model="activity" @change="onchange_stock_activity()">
                     <label class="form-check-label" :for="'activity' + (index)">
                       {{ item }}
                     </label>
@@ -113,9 +113,9 @@
                 <label for="stock_symbol" class="col-sm-3 col-form-label">股票代號</label>
                 <div class="col-sm-8">
                   <input type="text" name="stock_symbol" class="form-control" id="stock_symbol" placeholder="股票代號" v-validate="{required: true}"
-                         :readonly="form.activity == ''" v-if="form.activity != 'Sell'" @change="onchange_stock_symbol()" v-model="stock_symbol">
+                         :readonly="activity == ''" v-if="activity != 'Sell'" @change="onchange_stock_symbol()" v-model="stock_symbol">
                   <select class="form-control" name="stock_symbol" id="stock_symbol" placeholder="股票代號"
-                          v-if="form.activity == 'Sell'" v-model="stock_symbol" @change="onchange_stock_symbol()">
+                          v-if="activity == 'Sell'" v-model="stock_symbol" @change="onchange_stock_symbol()">
                       <option value="">請選擇賣出股票</option>
                       <option :value="item"  v-for="(item, index) in stock_symbol_list">{{ item }}</option>
                   </select>
@@ -131,32 +131,48 @@
                 </div>
               </div>
               <div class="form-group row">
-                <label for="price" class="col-sm-3 col-form-label">交易單價</label>
+                <label for="on_hand_volume" class="col-sm-3 col-form-label">持有股數</label>
+                <div class="col-sm-8">
+                  <input class="form-control" id="on_hand_volume" name="on_hand_volume" placeholder="持有股數"
+                         v-model="on_hand_volume" readonly>
+                </div>
+              </div>
+              <div class="form-group row" v-if="activity == 'Sell'">
+                <label for="cost" class="col-sm-3 col-form-label">每股成本</label>
+                <div class="col-sm-8">
+                  <input class="form-control" id="cost" v-model="form.cost" placeholder="交易成本" readonly>
+                </div>
+              </div>
+              <div class="form-group row">
+                <label for="price" class="col-sm-3 col-form-label">每股單價</label>
                 <div class="col-sm-8">
                   <input class="form-control" id="price" name="price"
                          v-model="form.price" placeholder="交易單價" v-validate="{required: true, integer: true}" @blur="calculate_total_cost()">
                   <span class="warning_word" v-if="errors.first('price')">{{ errors.first('price') }}</span>
                 </div>
               </div>
-              <div class="form-group row">
+              <div class="form-group row" v-if="activity == 'Sell'">
                 <label for="volume" class="col-sm-3 col-form-label">交易股數</label>
                 <div class="col-sm-8">
                   <input class="form-control" id="volume" name="volume" placeholder="交易股數"
-                         v-model="form.volume" v-validate="{required: true, integer: true}" @blur="calculate_total_cost()">
+                         v-model="form.volume" v-validate="{required: true, integer: true, max_value: on_hand_volume, min_value: 1}" @blur="calculate_total_cost()">
                   <span class="warning_word" v-if="errors.first('volume')">{{ errors.first('volume') }}</span>
                 </div>
               </div>
-              <div class="form-group row" v-if="form.activity == 'Sell'">
-                <label for="cost" class="col-sm-3 col-form-label">交易成本</label>
+              <div class="form-group row" v-if="activity != 'Sell'">
+                <label for="volume" class="col-sm-3 col-form-label">交易股數</label>
                 <div class="col-sm-8">
-                  <input class="form-control" id="cost" v-model="form.cost" placeholder="交易成本" readonly>
+                  <input class="form-control" id="volume" name="volume" placeholder="交易股數"
+                         v-model="form.volume" v-validate="{required: true, integer: true, min_value: 1}" @blur="calculate_total_cost()">
+                  <span class="warning_word" v-if="errors.first('volume')">{{ errors.first('volume') }}</span>
                 </div>
               </div>
             </form>
           </div>
           <div class="modal-footer">
-            <h2 class="h2_padding" v-if="form.price != 0 & form.volume != 0">成交金額: {{ total_cost }}</h2>
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+            <h3 class="h2_padding" v-if="form.price != 0 & form.volume != 0 & activity =='Buy'">成交金額: {{ total_cost }}</h3>
+            <h3 class="h2_padding" v-if="form.price != 0 & form.volume != 0 & activity !='Buy'">損益金額: {{ total_profit }}</h3>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal" @click="reset_data()">No</button>
             <button type="button" class="btn btn-primary" @click="checkForm()">Yes</button>
           </div>
         </div>
@@ -167,63 +183,70 @@
 
 <script>
 export default {
-    name: 'user_info',
-    data () {
-      return {
-        user_email: '',
-        activity_list: ['Buy', 'Sell'],
-        stock_symbol_list: [2330, '2335'],
-        stock_symbol: '',
-        stock_name: '',
-        total_cost: 0,
-        form: {
-          stock_basic_info_id: '',
-          activity: '',
-          volume: 0,
-          price: 0,
-          cost: 0
-        }
+  name: 'user_info',
+  data () {
+    return {
+      user_email: 123,
+      activity_list: ['Buy', 'Sell'],
+      stock_symbol_list: [],
+      activity: '',
+      stock_symbol: '',
+      stock_name: '',
+      on_hand_volume: 0,
+      total_cost: 0,
+      total_profit: 0,
+      form: {
+        stock_basic_info_id: '',
+        volume: 0,
+        price: 0,
+        cost: 0
       }
+    }
     },
     created: function () {
-        // Connect API
-        var google_token = this.get_cookie('google_token')
-        parent.this = this
-        axios({
-            method: 'get',
-            url: 'http://www.stockhelper.com.tw:8889/api/users',
-            params: { 'google_token': google_token}
-        })
-        .then(function (response) {
-            parent.this.user_email = response.data['user_email']
-            if (response.data['login_status'] === 0) {
-              // 轉頁
-              location.href = response.data['url']
-            }
-        })
-        .catch(function (error) {
-            console.log(error);
-        })
-        // vee-validate custom words
-        const dict = {
-        custom: {
-                stock_symbol: {
-                    required: '請輸入股票代號。',
-                },
-                stock_name: {
-                  required: '股票代號有誤。'
-                },
-                volume: {
-                  required: '請輸入交易量。',
-                  integer: '請輸入數字。'
-                },
-                price: {
-                  required: '請輸入單價。',
-                  integer: '請輸入數字。'
-                }
-            }
-        };
-        this.$validator.localize('en', dict);
+      // Connect API
+      var google_token = this.get_cookie('google_token')
+      parent.this = this
+      axios({
+          method: 'get',
+          url: 'http://www.stockhelper.com.tw:8889/api/users',
+          params: {'google_token': google_token}
+      })
+      .then(function (response) {
+          parent.this.user_email = response.data['user_email']
+          if (response.data['login_status'] === 0) {
+            // 轉頁
+            location.href = response.data['url']
+          }
+      })
+      .catch(function (error) {
+          console.log(error);
+      })
+      // vee-validate custom words
+      const dict = {
+      custom: {
+              stock_symbol: {
+                  required: '請輸入股票代號。',
+              },
+              stock_name: {
+                required: '股票代號有誤。'
+              },
+              volume: {
+                required: '請輸入交易量。',
+                integer: '請輸入數字。',
+                max_value: '交易股數要<=持有股數。',
+                min_value: '交易股數至少1股。'
+              },
+              price: {
+                required: '請輸入單價。',
+                integer: '請輸入數字。'
+              },
+          }
+      };
+      this.$validator.localize('en', dict);
+    },
+    updated: function() {
+      console.log(this.user_email)
     },
     methods: {
         get_cookie: function (name) {
@@ -231,7 +254,10 @@ export default {
             if (match) return match[2];
         },
         onchange_stock_activity: function () {
-          const vuex_store = this.$store
+          // 交易動作: sell，向後端索取可販售的證卷代號。
+          if (this.activity == 'Buy') {
+            return true
+          }
           parent.this = this
           // Connect API
           axios({
@@ -239,19 +265,19 @@ export default {
               url: 'http://www.stockhelper.com.tw:8889/api/stock_basic_info',
               data: {
                 action: 'get_stock_symbol_list',
-                activity: this.form.activity,
                 user_email: this.user_email,
               }
           })
           .then(function (response) {
               console.log(response);
+              parent.this.stock_symbol_list = response.data
           })
           .catch(function (error) {
               console.log(error);
           })
         },
         onchange_stock_symbol: function () {
-          const vuex_store = this.$store
+          // 拿取股票名字，成本(sell時)
           parent.this = this
           // Connect API
           axios({
@@ -259,27 +285,34 @@ export default {
               url: 'http://www.stockhelper.com.tw:8889/api/stock_basic_info',
               data: {
                 action: 'get_stock_name',
+                activity: this.activity,
+                user_email: this.user_email,
                 stock_symbol: this.stock_symbol,
               }
           })
           .then(function (response) {
               console.log(response);
               parent.this.stock_name = response.data['stock_name']
+              parent.this.form.cost = response.data['cost']
               parent.this.form.stock_basic_info_id = response.data['stock_basic_info_id']
+              parent.this.on_hand_volume = response.data['sell_stock_volume']
           })
           .catch(function (error) {
               console.log(error);
           })
         },
         calculate_total_cost: function () {
+          console.log(this.form)
           this.total_cost = this.form.price * this.form.volume
+          this.total_profit = (parseInt(this.form.price) - this.form.cost) * parseInt(this.form.volume)
         },
         checkForm: function() {
+        // 檢查表單
           this.$validator.validate().then(valid => {
 						if (valid) {
-              // this.submitForm(e);
-              $('#CreateTrade').modal('hide')
               this.submitForm()
+              $('#CreateTrade').modal('hide')
+              this.reset_data()
               return true
             }
             // 滑到error的地方
@@ -288,8 +321,12 @@ export default {
 					});
 				},
         submitForm: function() {
-          if (this.form.activity === 'Buy') {
+        // 提交表單
+          if (this.activity === 'Buy') {
             this.form.cost = this.form.price
+          }
+          if (this.activity === 'Sell') {
+            this.form.volume = - (this.form.price)
           }
           console.log(this.form)
           axios({
@@ -302,13 +339,33 @@ export default {
             }
           })
           .then(function (response) {
-              console.log(response.data);
+            alert(response.data)
+            location.href = './'
           })
           .catch(function (error) {
               console.log(error);
           })
-        }
-
+        },
+        reset_data: function() {
+            Object.assign(this.$data, this.$options.data());
+            this.user_email = this.$store.getters.user_email
+        },
+        get_page_info: function() {
+          var google_token = this.get_cookie('google_token')
+          axios({
+            method: 'get',
+            url: 'http://www.stockhelper.com.tw:8889/api/stock_basic_info',
+            params: {
+              params: {'google_token': google_token}
+            }
+          })
+          .then(function (response) {
+              console.log(response);
+          })
+          .catch(function (error) {
+              console.log(error);
+          })
+        },
     }
 }
 </script>

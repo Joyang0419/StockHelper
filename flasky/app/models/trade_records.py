@@ -12,6 +12,8 @@ class TradeRecords(DBAbstract):
     volume = db.Column(db.Integer, nullable=False)
     price = db.Column(db.Integer, nullable=False)
     cost = db.Column(db.Integer, nullable=False)
-    activity = db.Column(db.String(10), nullable=False)
     created_at = db.Column(db.DateTime(), default=datetime.utcnow)
     updated_at = db.Column(db.DateTime(), default=datetime.utcnow)
+
+    def __repr__(self):
+        return '<TradeRecords: %r>' % self.id
