@@ -10,7 +10,7 @@
             <div class="metric">
               <span class="icon"><i class="fa fa-download"></i></span>
               <p>
-                  <span class="number">1,252</span>
+                  <span class="number">{{ page_info.quick_review_info.total_cost }}</span>
                   <span class="title">累計賣出成本</span>
               </p>
             </div>
@@ -19,7 +19,7 @@
             <div class="metric">
               <span class="icon"><i class="fa fa-shopping-bag"></i></span>
               <p>
-                <span class="number">203</span>
+                <span class="number">{{ page_info.quick_review_info.total_sell }}</span>
                 <span class="title">累計售出金額</span>
               </p>
             </div>
@@ -28,7 +28,7 @@
           <div class="metric">
             <span class="icon"><i class="fa fa-eye"></i></span>
             <p>
-              <span class="number">274,678</span>
+              <span class="number">{{ page_info.quick_review_info.total_profit }}</span>
               <span class="title">累計獲利</span>
             </p>
             </div>
@@ -37,7 +37,7 @@
             <div class="metric">
               <span class="icon"><i class="fa fa-bar-chart"></i></span>
               <p>
-                <span class="number">35%</span>
+                <span class="number">{{ page_info.quick_review_info.profit_percent }}</span>
                 <span class="title">獲利率</span>
               </p>
             </div>
@@ -61,20 +61,20 @@
               <th>更新時間</th>
             </tr>
           </thead>
-          <tbody align="center">
+          <tbody align="center" v-for="(item, index) in page_info.inventory_list">
             <tr>
-              <td><a href="#">763648</a></td>
-              <td>Steve</td>
-              <td>$122</td>
-              <td>Oct 21, 2016</td>
-              <td><span class="label label-success">COMPLETED</span></td>
+              <td><a href="#">{{ item.stock_symbol }}</a></td>
+              <td>{{ item.stock_name }}</td>
+              <td>{{ item.on_hand_volume }}</td>
+              <td>{{ item.cost }}</td>
+              <td><span class="label label-success">{{ item.updated_at }}</span></td>
             </tr>
           </tbody>
           <tfoot align="center">
             <tr>
               <th>Total</th>
-              <th rowspan="1" colspan="2">總持有股票數量: 22</th>
-              <th rowspan="1" colspan="1">總持有股票成本: 22000</th>
+              <th rowspan="1" colspan="2">總持有股票數量: {{ page_info.inventory_count }}</th>
+              <th rowspan="1" colspan="1">總持有股票成本: {{ page_info.total_inventory_cost }}</th>
               <th rowspan="1" colspan="1"><div class="col-md-3 text-right"><a href="#" class="btn btn-primary" data-toggle="modal" data-target="#CreateTrade">執行交易</a></div></th>
             </tr>
           </tfoot>
@@ -88,7 +88,7 @@
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="reset_data() ">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
@@ -147,7 +147,7 @@
                 <label for="price" class="col-sm-3 col-form-label">每股單價</label>
                 <div class="col-sm-8">
                   <input class="form-control" id="price" name="price"
-                         v-model="form.price" placeholder="交易單價" v-validate="{required: true, integer: true}" @blur="calculate_total_cost()">
+                         v-model="form.price" placeholder="交易單價" v-validate="{required: true, decimal: true}" @blur="calculate_total_cost()">
                   <span class="warning_word" v-if="errors.first('price')">{{ errors.first('price') }}</span>
                 </div>
               </div>
@@ -186,7 +186,7 @@ export default {
   name: 'user_info',
   data () {
     return {
-      user_email: 123,
+      user_email: '',
       activity_list: ['Buy', 'Sell'],
       stock_symbol_list: [],
       activity: '',
@@ -195,12 +195,18 @@ export default {
       on_hand_volume: 0,
       total_cost: 0,
       total_profit: 0,
+      page_info: {
+        quick_review_info: '',
+        total_inventory_cost: '',
+        inventory_count: '',
+        inventory_list: ''
+      },
       form: {
         stock_basic_info_id: '',
         volume: 0,
         price: 0,
         cost: 0
-      }
+      },
     }
     },
     created: function () {
@@ -239,11 +245,12 @@ export default {
               },
               price: {
                 required: '請輸入單價。',
-                integer: '請輸入數字。'
+                decimal: '請輸入數字。'
               },
           }
       };
       this.$validator.localize('en', dict);
+      this.get_page_info()
     },
     updated: function() {
       console.log(this.user_email)
@@ -302,9 +309,8 @@ export default {
           })
         },
         calculate_total_cost: function () {
-          console.log(this.form)
           this.total_cost = this.form.price * this.form.volume
-          this.total_profit = (parseInt(this.form.price) - this.form.cost) * parseInt(this.form.volume)
+          this.total_profit = (parseInt(this.form.price) - parseInt(this.form.cost)) * parseInt(this.form.volume)
         },
         checkForm: function() {
         // 檢查表單
@@ -326,7 +332,7 @@ export default {
             this.form.cost = this.form.price
           }
           if (this.activity === 'Sell') {
-            this.form.volume = - (this.form.price)
+            this.form.volume = - (this.form.volume)
           }
           console.log(this.form)
           axios({
@@ -352,15 +358,16 @@ export default {
         },
         get_page_info: function() {
           var google_token = this.get_cookie('google_token')
+          parent.this = this
           axios({
             method: 'get',
             url: 'http://www.stockhelper.com.tw:8889/api/stock_basic_info',
-            params: {
-              params: {'google_token': google_token}
-            }
+            params: {'google_token': google_token}
           })
           .then(function (response) {
-              console.log(response);
+            console.log(response);
+            parent.this.page_info = response.data
+            console.log(parent.this.page_info)
           })
           .catch(function (error) {
               console.log(error);

@@ -22,6 +22,56 @@ class StockBasicInfoApi(Resource):
         id_info = google_log_in(google_token, google_oauth_client_id)
         # 從table: users get data
         user = Users.query.filter_by(email=id_info['email']).first()
+        # 吐出stock_basic_info_id, volume's sum
+        user_on_hand = TradeRecords.query.with_entities(TradeRecords.stock_basic_info_id,
+                                                        func.sum(TradeRecords.volume).label('sum')) \
+            .filter_by(user_id=user.id).group_by(TradeRecords.stock_basic_info_id)\
+            .order_by(TradeRecords.created_at.desc()).all()
+        inventory_list = []
+        total_inventory_cost = 0
+        for i in user_on_hand:
+            stock_info = {}
+            stock = StockBasicInfo.query.get(i[0])
+            if i.sum > 0:
+                stock_info['stock_symbol'] = stock.stock_symbol
+                stock_info['stock_name'] = stock.stock_name.rstrip()
+                stock_info['on_hand_volume'] = int(i.sum)
+                # 計算成本
+                sell_stock_volume_total_price = TradeRecords.query \
+                    .filter(TradeRecords.user_id == user.id, TradeRecords.stock_basic_info_id == stock.id) \
+                    .with_entities(func.sum(TradeRecords.volume * TradeRecords.cost).label('sum')).first()
+                sell_stock_volume_cost_avg = sell_stock_volume_total_price.sum / i.sum
+                stock_info['cost'] = int(sell_stock_volume_cost_avg)
+
+                # 最近交易日期
+                stock_recent_trade = TradeRecords.query\
+                    .filter(TradeRecords.user_id == user.id, TradeRecords.stock_basic_info_id == stock.id)\
+                    .order_by(TradeRecords.created_at.desc()).first()
+                recent_trade_date = stock_recent_trade.created_at
+                stock_info['updated_at'] = recent_trade_date.strftime("%Y-%m-%d %H:%M:%S")
+                total_inventory_cost += stock_info['on_hand_volume'] * stock_info['cost']
+                inventory_list.append(stock_info)
+        quick_review_info = {
+            'total_cost': 0,
+            'total_sell': 0,
+            'total_profit': 0,
+            'profit_percent': '0%',
+        }
+        sell_stock_list = TradeRecords.query.filter(TradeRecords.volume < 0).all()
+        if len(sell_stock_list) > 0:
+            for i in sell_stock_list:
+                quick_review_info['total_cost'] += abs(i.volume * i.cost)
+                quick_review_info['total_sell'] += abs(i.volume * i.price)
+            quick_review_info['total_profit'] = quick_review_info['total_sell'] - quick_review_info['total_cost']
+            quick_review_info['profit_percent'] = '{percent:.2%}'\
+                .format(percent=(quick_review_info['total_profit'] / quick_review_info['total_cost']))
+
+        return {
+            'quick_review_info': quick_review_info,
+            'total_inventory_cost': total_inventory_cost,
+            'inventory_count': len(inventory_list),
+            'inventory_list': inventory_list
+        }
 
     def post(self):
         """
