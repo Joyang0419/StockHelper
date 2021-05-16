@@ -211,23 +211,7 @@ export default {
     },
     created: function () {
       // Connect API
-      var google_token = this.get_cookie('google_token')
-      parent.this = this
-      axios({
-          method: 'get',
-          url: 'http://www.stockhelper.com.tw:8889/api/users',
-          params: {'google_token': google_token}
-      })
-      .then(function (response) {
-          parent.this.user_email = response.data['user_email']
-          if (response.data['login_status'] === 0) {
-            // 轉頁
-            location.href = response.data['url']
-          }
-      })
-      .catch(function (error) {
-          console.log(error);
-      })
+      this.get_page_info()
       // vee-validate custom words
       const dict = {
       custom: {
@@ -250,10 +234,6 @@ export default {
           }
       };
       this.$validator.localize('en', dict);
-      this.get_page_info()
-    },
-    updated: function() {
-      console.log(this.user_email)
     },
     methods: {
         get_cookie: function (name) {
@@ -355,9 +335,14 @@ export default {
         reset_data: function() {
             Object.assign(this.$data, this.$options.data());
             this.user_email = this.$store.getters.user_email
+            this.get_page_info()
         },
         get_page_info: function() {
           var google_token = this.get_cookie('google_token')
+          var vuex_store = this.$store
+          if (google_token === undefined) {
+            location.href = './login'
+          }
           parent.this = this
           axios({
             method: 'get',
@@ -365,12 +350,15 @@ export default {
             params: {'google_token': google_token}
           })
           .then(function (response) {
-            console.log(response);
+            if (response.data['login_status'] === 0) {
+              // 轉頁
+              location.href = response.data['url']
+            }
+            parent.this.user_email = vuex_store.getters.user_email
             parent.this.page_info = response.data
-            console.log(parent.this.page_info)
           })
           .catch(function (error) {
-              console.log(error);
+            console.log(error);
           })
         },
     }

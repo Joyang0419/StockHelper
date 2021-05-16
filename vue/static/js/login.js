@@ -15,7 +15,6 @@ function onSignIn(googleUser) {
       }
   })
   .then(function (response) {
-      console.log(response);
       // cookie record token
       document.cookie = 'google_token=' + id_token;
       // 轉頁

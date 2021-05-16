@@ -6,7 +6,8 @@ from app import create_app, db
 from app.models import (
     users,
     stock_basic_info,
-    trade_records
+    trade_records,
+    stock_data
 )
 
 # 抓取env檔案位置。

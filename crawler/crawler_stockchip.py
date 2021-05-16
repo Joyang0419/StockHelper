@@ -1,20 +1,15 @@
 from utils import Crawler
-from datetime import datetime, timedelta
 import json
-import pymysql
+from database.index import *  # database 處理套件
+import pandas as pd
 import time
 import random
 
 
 class CrawlerStockChip(Crawler):
-    db_settings = {
-        "host": "172.18.0.101",
-        "port": 3306,
-        "user": "root",
-        "password": "stockhelper",
-        "db": "stock_helper",
-        "charset": "utf8"
-    }
+    """
+    爬蟲: 股票籌碼資訊
+    """
 
     def __init__(self, url: str = None, method: str = None, headers: dict = None, **params):
         """
@@ -25,120 +20,81 @@ class CrawlerStockChip(Crawler):
         """
         # crawler 物件
         Crawler.__init__(self, url=url, headers=headers, method=method, **params)
-        # 存放資料區
+        # 資料存放區
         self.data = []
 
     def get_data(self, response_text) -> list:
         """抓取資料"""
         json_data = json.loads(response_text)
-        print('抓取資料日期: ', self.params['date'])
-        if json_data['stat'] == "OK":
-            # 判斷抓取位置: 三大法人買賣超股數
-            fields = json_data['fields']
-            institutional_investor_net_buy_position = fields.index('三大法人買賣超股數')
-
-            data = json_data['data']
-            print('資料筆數: ', len(data))
-            for each_data in data:
-                individual_stock = {}  # 個股的資料存放區
-                stock_symbol = each_data[0]  # stock symbol: 股票代號
-                # institution_investor_net_buy: 三大法人買賣超股數
-                institutional_investor_net_buy = each_data[institutional_investor_net_buy_position]
-                individual_stock['stock_symbol'] = stock_symbol
-                individual_stock['institutional_investor_net_buy'] = institutional_investor_net_buy
-                self.data.append(individual_stock)
-            return self.data
-        else:
-            self.data = None
-
-    def data_processing(self):
-        """資料處理"""
-        print('資料處理中')
-        for each_data in self.data:
-            # 交易量去除千分位，並轉換成數字。
-            each_data['institutional_investor_net_buy'] = int(each_data['institutional_investor_net_buy'].replace(',', ''))
-
-    def to_database(self):
-        """資料進入資料庫"""
-        print('資料進入資料庫')
-        try:
-            # 建立Connection物件
-            connection = pymysql.connect(**self.db_settings)
-            # 建立Cursor物件
-            with connection.cursor() as cursor:
-                # 資料表相關操作
-                # 新增資料SQL語法
-                command = "INSERT INTO bargaining_chip" \
-                          "(stock_symbol, institutional_investor_net_buy, date) " \
-                          "VALUES(%s, %s, %s)"
-                for each_data in self.data:
-                    cursor.execute(command, (each_data['stock_symbol'],
-                                             each_data['institutional_investor_net_buy'],
-                                             self.params['date']))
-                # 儲存變更
-                connection.commit()
-                cursor.close()
-                connection.close()
-                print('資料存取完成。')
-                print('========================')
-        # SQL錯誤時，跳出錯誤原因。
-        except Exception as ex:
-            print(ex)
-
-    def main(self):
-        """
-        主程式:
-        - request，狀態200，繼續執行。
-        - get_data
-        - data_processing
-        """
-        response = Crawler.request(self)
-        # 判斷網頁狀態，200(正常才繼續運作)
-        if response.status_code == 200:
-            # 抓取資料
-            self.get_data(response_text=response.text)
-            if self.data is not None:
-                # 資料處理
-                self.data_processing()
-                # 進入資料庫
-                self.to_database()
-
-        else:
-            print("沒資料: ", self.params['date'])
+        print('抓取資料中')
+        data = json_data['data']
+        print('資料筆數: ', len(data))
+        self.data = data
         return self.data
 
+    def data_processing(self):
+        f"""
+        資料處理
+        - dict: stock_symbol, net_buy_volume, date
+        """
+        handled_data = []
+        for i in self.data:
+            print(i)
+            print(i['code'])
+            data = {
+                'stock_symbol': i['code'],
+                'date': i['date'],
+                'net_buy_volume': i['totalNetBuySellVolume']
+            }
+            handled_data.append(data)
+        return handled_data
+
     @staticmethod
-    def create_date(start_date: int, end_date: int) -> list:
+    def to_database(data):
         """
-        時間產生器: 輸入開始日期及結束日期，產生從開始日期到結束日期的所有日期，並存到串列。
+        資料進入資料庫
+        - stock_chip
         """
-        date_list = []
-        start_date = datetime.strptime(str(start_date), "%Y%m%d")
-        end_date = datetime.strptime(str(end_date), "%Y%m%d")
-        delta = timedelta(days=1)
-        while start_date <= end_date:
-            date_list.append(start_date.strftime("%Y%m%d"))
-            start_date += delta
-        return date_list
+        # 判斷industry_type_status
+        for i in handled_data:
+            StockChip.create(**i)
 
 
 if __name__ == '__main__':
-    headers_raw = '''Referer: https://realpython.com/
-sec-ch-ua: "Google Chrome";v="89", "Chromium";v="89", ";Not A Brand";v="99"
+    headers_raw = '''authority: marketinfo.api.cnyes.com
+method: GET
+path: /mi/api/v1/investors/buysell/TWS%3A0050%3ASTOCK?from=1621296000&to=1617235200
+scheme: https
+accept: application/json, text/plain, */*
+accept-encoding: gzip, deflate, br
+accept-language: zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7
+origin: https://invest.cnyes.com
+referer: https://invest.cnyes.com/
+sec-ch-ua: " Not A;Brand";v="99", "Chromium";v="90", "Google Chrome";v="90"
 sec-ch-ua-mobile: ?0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36'''
+sec-fetch-dest: empty
+sec-fetch-mode: cors
+sec-fetch-site: same-site
+user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36
+x-cnyes-app: unknown
+x-platform: WEB, WEB
+x-system-kind: FUND_OLD_DRIVER'''
+    # 處理headers
+    headers_dict = Crawler.get_dict(str_raw=headers_raw)
+    stock_symbol = "2892"
+    start_timestamp = '1621296000'
+    end_timestamp = '1617235200'
+    request_url = 'https://marketinfo.api.cnyes.com/mi/api/v1/investors/buysell/TWS%3A' + stock_symbol + '%3ASTOCK?' \
+                  + 'from=' + start_timestamp + '&' + 'to=' + end_timestamp
 
-    headers_dict = Crawler.get_headers(headers_raw=headers_raw)
-    # 資料存在起始日期: 20210502
-    date_list = CrawlerStockChip.create_date(start_date=20150409,
-                                             end_date=20210416)
-# 使用多線程，用日期每天去爬。
-    for each_date in date_list:
-        crawler_stock_chip = CrawlerStockChip(url='https://www.twse.com.tw/fund/T86',
-                                              headers=headers_dict,
-                                              method='get',
-                                              response='json',
-                                              date=each_date,
-                                              selectType='ALL')
-        crawler_stock_chip.main()
-        time.sleep(random.randint(3, 6))
+    # 創造CrawlerStockChip物件
+    crawler_stock_chip = CrawlerStockChip(url=request_url,
+                                          headers=headers_dict,
+                                          method='get')
+    response = crawler_stock_chip.request()
+    # 拿取資料
+    crawler_stock_chip.get_data(response_text=response.text)
+    # 資料處理
+    handled_data = crawler_stock_chip.data_processing()
+    # 資料庫存取資料
+    crawler_stock_chip.to_database(data=handled_data)

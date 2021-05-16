@@ -11,3 +11,5 @@ class StockBasicInfo(DBAbstract):
     # relationship
     # stock_basic_info: trade_records = one : many
     trade_records = db.relationship('TradeRecords', backref='stock_basic_info', lazy=True)
+    # stock_basic_info: stock_data = one : many
+    stock_data = db.relationship('StockData', backref='stock_basic_info', lazy=True)

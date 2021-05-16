@@ -4,6 +4,7 @@ from flask_cors import CORS
 # 引入resource
 from .users import UsersApi
 from .stock_basic_info import StockBasicInfoApi
+from .stock_data import StockDataApi
 
 
 api_blueprint = Blueprint('api_blueprint', __name__)
@@ -12,3 +13,4 @@ api = Api(api_blueprint)
 # api加入服務
 api.add_resource(UsersApi, '/users')
 api.add_resource(StockBasicInfoApi, '/stock_basic_info')
+api.add_resource(StockDataApi, '/stock_data')

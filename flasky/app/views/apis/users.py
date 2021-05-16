@@ -36,7 +36,9 @@ class UsersApi (Resource):
         google_oauth_client_id = current_app.config['GOOGLE_OAUTH2_CLIENT_ID']
 
         # google驗證
-        id_info = google_log_in(google_token, google_oauth_client_id, response)
+        id_info = google_log_in(google_token, google_oauth_client_id)
+        if id_info is None:
+            return response
         # 從table: users get data
         user = Users.query.filter_by(email=id_info['email']).first()
         # 圖片網址

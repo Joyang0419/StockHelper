@@ -127,25 +127,26 @@ export default {
             if (match) return match[2];
         },
         get_user_info: function() {
-            // Connect API
-        var google_token = this.get_cookie('google_token')
-        var parent_this = this
-        var vuex_store = this.$store
-            axios({
-                method: 'get',
-                url: 'http://www.stockhelper.com.tw:8889/api/users',
-                params: { 'google_token': google_token}
-            })
-            .then(function (response) {
-                if (response.data['login_status'] === 1) {
-                    vuex_store.dispatch('update_user_info', response.data)
-                    parent_this.username = vuex_store.getters.username
-                    parent_this.user_image_url = vuex_store.getters.user_image_url
-                }
-            })
-            .catch(function (error) {
-                console.log(error);
-            })
+          // Connect API
+          var google_token = this.get_cookie('google_token')
+          var parent_this = this
+          var vuex_store = this.$store
+          axios({
+              method: 'get',
+              url: 'http://www.stockhelper.com.tw:8889/api/users',
+              params: { 'google_token': google_token}
+          })
+          .then(function (response) {
+              if (response.data['login_status'] === 1) {
+                  vuex_store.dispatch('update_user_info', response.data)
+                  parent_this.username = vuex_store.getters.username
+                  parent_this.user_image_url = vuex_store.getters.user_image_url
+              }
+          })
+          .catch(function (error) {
+              console.log(error);
+              this.delete_cookie('google_token')
+          })
         }
     }
 }
