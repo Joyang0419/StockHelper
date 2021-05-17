@@ -104,11 +104,11 @@ class StockBasicInfoApi(Resource):
             if stock is not None:
                 response['stock_name'] = stock.stock_name
                 response['stock_basic_info_id'] = stock.id
-                if json_data['activity'] == 'Sell':
-                    # 計算sell_stock_volume_cost_avg
-                    sell_stock_volume = TradeRecords.query \
-                        .filter(TradeRecords.user_id == user.id, TradeRecords.stock_basic_info_id == stock.id) \
-                        .with_entities(func.sum(TradeRecords.volume).label('sum')).first()
+                # 計算sell_stock_volume_cost_avg
+                sell_stock_volume = TradeRecords.query \
+                    .filter(TradeRecords.user_id == user.id, TradeRecords.stock_basic_info_id == stock.id) \
+                    .with_entities(func.sum(TradeRecords.volume).label('sum')).first()
+                if sell_stock_volume[0] is not None:
                     sell_stock_volume_total_price = TradeRecords.query \
                         .filter(TradeRecords.user_id == user.id, TradeRecords.stock_basic_info_id == stock.id) \
                         .with_entities(func.sum(TradeRecords.volume * TradeRecords.cost).label('sum')).first()

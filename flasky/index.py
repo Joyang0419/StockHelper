@@ -7,7 +7,8 @@ from app.models import (
     users,
     stock_basic_info,
     trade_records,
-    stock_data
+    stock_data,
+    stock_chip
 )
 
 # 抓取env檔案位置。

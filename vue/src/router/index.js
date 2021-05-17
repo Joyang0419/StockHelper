@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import UserInfo from '@/components/user_info'
 import Login from '@/components/login'
 import StockData from '@/components/stock_data'
+import PageNotFound from '@/components/page_not_found'
 
 Vue.use(Router)
 
@@ -24,5 +25,11 @@ export default new Router({
       name: 'StockData',
       component: StockData
     },
+    {
+      path: '*',
+      name: 'PageNotFound',
+      component: PageNotFound
+    },
+
   ]
 })

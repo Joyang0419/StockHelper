@@ -2,10 +2,10 @@
   <div>
     <div class="input-group" style="padding-top: 10px; padding-bottom: 20px">
       <input type="search" class="form-control rounded" placeholder="請輸入股票代號" aria-label="Search"
-      aria-describedby="search-addon" />
-      <button type="button" class="btn btn-outline-primary">search</button>
+      aria-describedby="search-addon" v-model="stock_symbol" />
+      <button type="button" class="btn btn-outline-primary" @click="stock_symbol_search()">search</button>
     </div>
-    <h6>最近交易日: 2021-04-23</h6>
+    <h6>最近交易日: {{ page_info.latest_info['date'] }}</h6>
     <section class="dashboard-counts">
       <div class="container-fluid">
         <div class="row">
@@ -14,7 +14,7 @@
             <div class="wrapper count-title d-flex">
               <div class="icon"><i class="icon-user"></i></div>
               <div class="name"><strong class="text-uppercase">漲跌幅(%)</strong>
-                <div class="count-number">25</div>
+                <div class="count-number">{{ page_info.latest_info['percent'] }}</div>
               </div>
             </div>
           </div>
@@ -23,7 +23,7 @@
             <div class="wrapper count-title d-flex">
               <div class="icon"><i class="icon-padnote"></i></div>
               <div class="name"><strong class="text-uppercase">開盤價</strong>
-                <div class="count-number">400</div>
+                <div class="count-number">{{ page_info.latest_info['opening_price'] }}</div>
               </div>
             </div>
           </div>
@@ -32,7 +32,7 @@
             <div class="wrapper count-title d-flex">
               <div class="icon"><i class="icon-check"></i></div>
               <div class="name"><strong class="text-uppercase">收盤價</strong>
-                <div class="count-number">342</div>
+                <div class="count-number">{{ page_info.latest_info['closing_price'] }}</div>
               </div>
             </div>
           </div>
@@ -41,7 +41,7 @@
             <div class="wrapper count-title d-flex">
               <div class="icon"><i class="icon-bill"></i></div>
               <div class="name"><strong class="text-uppercase">最高價</strong>
-                <div class="count-number">123</div>
+                <div class="count-number">{{ page_info.latest_info['highest_price'] }}</div>
               </div>
             </div>
           </div>
@@ -50,7 +50,7 @@
             <div class="wrapper count-title d-flex">
               <div class="icon"><i class="icon-list"></i></div>
               <div class="name"><strong class="text-uppercase">最低價</strong>
-                <div class="count-number">92</div>
+                <div class="count-number">{{ page_info.latest_info['lowest_price'] }}</div>
               </div>
             </div>
           </div>
@@ -59,7 +59,7 @@
             <div class="wrapper count-title d-flex">
               <div class="icon"><i class="icon-list-1"></i></div>
               <div class="name"><strong class="text-uppercase">成交量(張)</strong>
-                <div class="count-number">70</div>
+                <div class="count-number">{{ page_info.latest_info['volume'] }}</div>
               </div>
             </div>
           </div>
@@ -80,27 +80,32 @@ export default {
   name: "StockData",
   data: function() {
     return {
+      stock_symbol: '',
       page_info: {
         latest_info: '',
-        stock_data_list: [],
-        institution_data_list: []
       }
     }
   },
   created: function() {
-    this.get_page_info()
+    this.get_page_info('0050')
   },
   methods: {
-    get_page_info: function () {
+    stock_symbol_search() {
+      this.get_page_info(this.stock_symbol)
+      this.stock_symbol = ''
+    },
+    get_page_info: function(stock_symbol) {
       parent.this = this
       axios({
       method: 'get',
       url: 'http://www.stockhelper.com.tw:8889/api/stock_data',
+      params: {'stock_symbol': stock_symbol}
       })
       .then(function (response) {
-        console.log(response.data)
-        parent.this.draw_stock_data_chart(response.data)
-        parent.this.draw_institution_bar_chart()
+        console.log(response)
+        parent.this.page_info.latest_info = response.data['latest_info']
+        parent.this.draw_stock_data_chart(response.data['stock_data'])
+        parent.this.draw_institution_bar_chart(response.data['stock_chip_data'])
         response.data
       })
       .catch(function (error) {
@@ -109,9 +114,10 @@ export default {
     },
     draw_stock_data_chart: function (data) {
       // split the data set into ohlc and volume
+      // console.log(data['data_list'])
       var ohlc = [],
           volume = [],
-          dataLength = data.length,
+          dataLength = data['data_list'].length,
           // set the allowed units for data grouping
           groupingUnits = [[
             'week',                         // unit name
@@ -126,32 +132,38 @@ export default {
 
       for (i; i < dataLength; i += 1) {
           ohlc.push([
-              data[i][0], // the date
-              data[i][1], // open
-              data[i][2], // high
-              data[i][3], // low
-              data[i][4] // close
+              data['data_list'][i][0], // the date
+              data['data_list'][i][1], // open
+              data['data_list'][i][2], // high
+              data['data_list'][i][3], // low
+              data['data_list'][i][4] // close
           ]);
 
           volume.push([
-              data[i][0], // the date
-              data[i][5] // the volume
+              data['data_list'][i][0], // the date
+              data['data_list'][i][5] // the volume
           ]);
       }
 
       // create the chart
       const stock_data_chart = Highcharts.stockChart('stockData', {
-
+          plotOptions: {
+            candlestick: {
+              color: 'palegreen',
+              upColor: 'lightcoral'
+            }
+          },
           rangeSelector: {
               selected: 1
           },
 
           title: {
-              text: 'AAPL Historical'
+              text: data['stock_name']
           },
 
           yAxis: [{
               labels: {
+                  format: '{value:.1f}',
                   align: 'right',
                   x: -3
               },
@@ -183,7 +195,7 @@ export default {
 
           series: [{
               type: 'candlestick',
-              name: 'AAPL',
+              name: data['stock_name'],
               data: ohlc,
               dataGrouping: {
                   units: groupingUnits
@@ -199,7 +211,7 @@ export default {
           }]
       });
     },
-    draw_institution_bar_chart() {
+    draw_institution_bar_chart(data) {
       Highcharts.chart('container', {
         title: {
             text: '三大法人動向'
@@ -208,12 +220,13 @@ export default {
             text: '單位(張)'
         },
         xAxis: {
-            categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            categories: data['date_list'],
         },
         series: [{
             type: 'column',
-            colorByPoint: true,
-            data: [29.9, 71.5, -1000, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4],
+            name: '三大法人買超',
+            colorByPoint: false,
+            data: data['data_list'],
             showInLegend: false
         }],
       });

@@ -81,9 +81,9 @@ x-platform: WEB, WEB
 x-system-kind: FUND_OLD_DRIVER'''
     # 處理headers
     headers_dict = Crawler.get_dict(str_raw=headers_raw)
-    stock_symbol = "2892"
-    start_timestamp = '1621296000'
-    end_timestamp = '1617235200'
+    stock_symbol = "0050"
+    start_timestamp = '1619222400'  # 2021/4/23
+    end_timestamp = '1616457600'  # 2021/3/23
     request_url = 'https://marketinfo.api.cnyes.com/mi/api/v1/investors/buysell/TWS%3A' + stock_symbol + '%3ASTOCK?' \
                   + 'from=' + start_timestamp + '&' + 'to=' + end_timestamp
 

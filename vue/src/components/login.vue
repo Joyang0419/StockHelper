@@ -35,7 +35,6 @@ export default {
         document.body.appendChild(google_login_Script);
     },
     methods: {
-
     }
 }
 </script>

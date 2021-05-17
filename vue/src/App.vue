@@ -21,13 +21,7 @@
                     </a>
                     <ul class="collapse list-unstyled" id="homeSubmenu">
                         <li>
-                            <a href="#">台股大盤</a>
-                        </li>
-                        <li>
-                            <a href="#">產業類別指標</a>
-                        </li>
-                        <li>
-                            <a href="#">個股指標</a>
+                          <router-link :to="{ name: 'StockData'}">個股資訊</router-link>
                         </li>
                     </ul>
                 </li>
@@ -38,10 +32,7 @@
                     </a>
                     <ul class="collapse list-unstyled" id="pageSubmenu">
                         <li>
-                            <a href="#">個人資料</a>
-                        </li>
-                        <li>
-                            <a href="#">即時庫存</a>
+                          <router-link :to="{ name: 'UserInfo'}">持有庫存</router-link>
                         </li>
                     </ul>
                 </li>
@@ -145,7 +136,7 @@ export default {
           })
           .catch(function (error) {
               console.log(error);
-              this.delete_cookie('google_token')
+              alert('請重新登入。')
           })
         }
     }

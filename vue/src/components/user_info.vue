@@ -264,7 +264,6 @@ export default {
           })
         },
         onchange_stock_symbol: function () {
-          // 拿取股票名字，成本(sell時)
           parent.this = this
           // Connect API
           axios({
