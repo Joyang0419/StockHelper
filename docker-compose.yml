@@ -1,0 +1,40 @@
+version: "3.2"
+
+services:
+  db:
+      image: mariadb
+      container_name: mariadb
+      ports:
+        - "3306:3306"
+      environment:
+        MYSQL_ROOT_PASSWORD: aa329765
+      networks:
+        internal_network:
+          ipv4_address: 172.18.0.101
+
+  backend:
+    build: ./docker/flask
+    container_name: flask_stockhelper
+    ports:
+      - "8889:5000"
+    networks:
+      internal_network:
+        ipv4_address: 172.18.0.112
+    volumes:
+      - ./flasky:/var/www/html
+
+  frontend:
+    build: ./docker/vue
+    container_name: vue_stockhelper
+    ports:
+      - "8080:8080"
+    networks:
+      internal_network:
+        ipv4_address: 172.18.0.113
+    volumes:
+      - ./vue:/var/www/html
+
+networks:
+  internal_network:
+    external:
+      name: pythonteam
