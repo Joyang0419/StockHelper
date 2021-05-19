@@ -1,5 +1,6 @@
 <template>
   <div>
+    <breadcrumb></breadcrumb>
     <div class="panel panel-headline">
       <div class="panel-heading">
           <h3 class="panel-title">Quickly Overview</h3>
@@ -182,8 +183,12 @@
 </template>
 
 <script>
+import Breadcrumb from './breadcrumb'
 export default {
   name: 'user_info',
+  components: {
+    Breadcrumb
+  },
   data () {
     return {
       user_email: '',

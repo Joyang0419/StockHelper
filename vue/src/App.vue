@@ -15,26 +15,37 @@
           </div>
             <ul class="list-unstyled components">
                 <li>
-                    <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-                        <i class="fas fa-home"></i>
-                        股票資訊
-                    </a>
-                    <ul class="collapse list-unstyled" id="homeSubmenu">
-                        <li>
-                          <router-link :to="{ name: 'StockData'}">個股資訊</router-link>
-                        </li>
-                    </ul>
+                  <a href="#userinfo" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
+                      <i class="fas fa-copy"></i>
+                      個人資訊
+                  </a>
+                  <ul class="collapse list-unstyled" id="userinfo">
+                      <li>
+                        <router-link :to="{ name: 'UserInfo'}">持有庫存</router-link>
+                      </li>
+                  </ul>
                 </li>
                 <li>
-                    <a href="#pageSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-                        <i class="fas fa-copy"></i>
-                        個人資訊
-                    </a>
-                    <ul class="collapse list-unstyled" id="pageSubmenu">
-                        <li>
-                          <router-link :to="{ name: 'UserInfo'}">持有庫存</router-link>
-                        </li>
-                    </ul>
+                  <a href="#stockinfo" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
+                      <i class="fas fa-home"></i>
+                      股票資訊
+                  </a>
+                  <ul class="collapse list-unstyled" id="stockinfo">
+                      <li>
+                        <router-link :to="{ name: 'StockData'}">個股資訊</router-link>
+                      </li>
+                  </ul>
+                </li>
+                <li>
+                  <a href="#pageSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
+                      <i class="fas fa-copy"></i>
+                      智能預測
+                  </a>
+                  <ul class="collapse list-unstyled" id="pageSubmenu">
+                      <li>
+                        <router-link :to="{ name: 'AI_Predict'}">價格預測</router-link>
+                      </li>
+                  </ul>
                 </li>
             </ul>
         </nav>

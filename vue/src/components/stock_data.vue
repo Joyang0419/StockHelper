@@ -1,5 +1,6 @@
 <template>
   <div>
+    <breadcrumb></breadcrumb>
     <div class="input-group" style="padding-top: 10px; padding-bottom: 20px">
       <input type="search" class="form-control rounded" placeholder="請輸入股票代號" aria-label="Search"
       aria-describedby="search-addon" v-model="stock_symbol" />
@@ -76,8 +77,12 @@
 </template>
 
 <script>
+import Breadcrumb from './breadcrumb'
 export default {
   name: "StockData",
+  components: {
+    Breadcrumb
+  },
   data: function() {
     return {
       stock_symbol: '',
@@ -97,9 +102,9 @@ export default {
     get_page_info: function(stock_symbol) {
       parent.this = this
       axios({
-      method: 'get',
-      url: 'http://www.stockhelper.com.tw:8889/api/stock_data',
-      params: {'stock_symbol': stock_symbol}
+        method: 'get',
+        url: 'http://www.stockhelper.com.tw:8889/api/stock_data',
+        params: {'stock_symbol': stock_symbol}
       })
       .then(function (response) {
         console.log(response)
