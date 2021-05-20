@@ -13,3 +13,4 @@ class StockData(DBAbstract):
     lowest_price = db.Column(db.Float, nullable=False)
     volume = db.Column(db.Integer, nullable=False)
     date = db.Column(db.DateTime(), nullable=False)
+

@@ -108,7 +108,7 @@ class StockBasicInfoApi(Resource):
                 sell_stock_volume = TradeRecords.query \
                     .filter(TradeRecords.user_id == user.id, TradeRecords.stock_basic_info_id == stock.id) \
                     .with_entities(func.sum(TradeRecords.volume).label('sum')).first()
-                if sell_stock_volume[0] is not None:
+                if sell_stock_volume.sum:
                     sell_stock_volume_total_price = TradeRecords.query \
                         .filter(TradeRecords.user_id == user.id, TradeRecords.stock_basic_info_id == stock.id) \
                         .with_entities(func.sum(TradeRecords.volume * TradeRecords.cost).label('sum')).first()

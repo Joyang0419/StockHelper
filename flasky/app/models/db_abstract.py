@@ -18,3 +18,7 @@ class DBAbstract(db.Model):
         db.session.add(obj)
         db.session.commit()
         return obj
+
+    @staticmethod
+    def db_session_bind():
+        return db.session.bind

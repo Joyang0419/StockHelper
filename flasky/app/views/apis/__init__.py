@@ -5,6 +5,7 @@ from flask_cors import CORS
 from .users import UsersApi
 from .stock_basic_info import StockBasicInfoApi
 from .stock_data import StockDataApi
+from .ai_predict import AIPredict
 
 
 api_blueprint = Blueprint('api_blueprint', __name__)
@@ -14,3 +15,4 @@ api = Api(api_blueprint)
 api.add_resource(UsersApi, '/users')
 api.add_resource(StockBasicInfoApi, '/stock_basic_info')
 api.add_resource(StockDataApi, '/stock_data')
+api.add_resource(AIPredict, '/ai_predict')

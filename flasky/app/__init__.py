@@ -11,7 +11,6 @@ from flask_debugtoolbar import DebugToolbarExtension
 # log
 import logging
 
-
 # 設凳logging層級
 logger = logging.getLogger('app')
 logger.setLevel(logging.DEBUG)
