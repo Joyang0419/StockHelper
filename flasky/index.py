@@ -8,7 +8,9 @@ from app.models import (
     stock_basic_info,
     trade_records,
     stock_data,
-    stock_chip
+    stock_chip,
+    three_days_predict,
+    five_days_predict
 )
 
 # 抓取env檔案位置。

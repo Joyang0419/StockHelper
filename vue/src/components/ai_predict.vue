@@ -56,7 +56,7 @@ export default {
     }
   },
   created() {
-    this.get_page_info()
+    this.get_line_chart_data()
   },
   mounted() {
     this.create_bar_chart()

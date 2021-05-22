@@ -15,3 +15,7 @@ class StockBasicInfo(DBAbstract):
     stock_data = db.relationship('StockData', backref='stock_basic_info', lazy=True)
     # stock_basic_info: stock_chip = one : many
     stock_chip = db.relationship('StockChip', backref='stock_basic_info', lazy=True)
+    # stock_basic_info:three_days_predict = 1:1
+    three_days_predict = db.relationship("ThreeDaysPredict", uselist=False, lazy=True, backref="stock_basic_info")
+    # stock_basic_info:five_days_predict = 1:1
+    five_days_predict = db.relationship("FiveDaysPredict", uselist=False, lazy=True, backref="stock_basic_info")

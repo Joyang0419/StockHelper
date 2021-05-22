@@ -9,6 +9,5 @@ from crawler.database.tables.stock_chip import StockChip
 
 if __name__ == '__main__':
     # Base.metadata.drop_all(engine)
-    print('123')
     Base.metadata.create_all(engine)
 
