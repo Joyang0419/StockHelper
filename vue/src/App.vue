@@ -99,14 +99,23 @@ export default {
         return {
           sidebar_Status: false,
           username: this.$store.getters.username,
-          user_image_url: ''
+          user_image_url: this.$store.getters.user_image_url,
+          login_error: 0
         }
     },
     created: function () {
-        this.get_user_info()
+      this.get_user_info()
     },
     mounted: function () {
 
+    },
+    watch: {
+      login_error: function () {
+        if (this.login_error === 1) {
+          alert('請重新登入')
+          location.href = './login'
+        }
+      }
     },
     methods: {
         toggle_sidebar: function () {
@@ -130,24 +139,26 @@ export default {
         },
         get_user_info: function() {
           // Connect API
-          var google_token = this.get_cookie('google_token')
-          var parent_this = this
-          var vuex_store = this.$store
+          const google_token = this.get_cookie('google_token')
+          if (google_token === undefined) {
+            return true
+          }
+          const parent_this = this
+          const vuex_store = this.$store
           axios({
               method: 'get',
               url: 'http://www.stockhelper.com.tw:8889/api/users',
               params: { 'google_token': google_token}
           })
           .then(function (response) {
-              if (response.data['login_status'] === 1) {
-                  vuex_store.dispatch('update_user_info', response.data)
-                  parent_this.username = vuex_store.getters.username
-                  parent_this.user_image_url = vuex_store.getters.user_image_url
-              }
+              vuex_store.dispatch('update_user_info', response.data)
+              parent_this.username = vuex_store.getters.username
+              parent_this.user_image_url = vuex_store.getters.user_image_url
           })
           .catch(function (error) {
-              console.log(error);
-              alert('請重新登入。')
+            console.log(error);
+            parent_this.delete_cookie('google_token')
+            parent_this.login_error = 1
           })
         }
     }

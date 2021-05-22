@@ -126,149 +126,24 @@ export default {
     created: function () {
       // Connect API
       this.get_page_info()
-      // vee-validate custom words
-      const dict = {
-      custom: {
-              stock_symbol: {
-                  required: '請輸入股票代號。',
-              },
-              stock_name: {
-                required: '股票代號有誤。'
-              },
-              volume: {
-                required: '請輸入交易量。',
-                integer: '請輸入數字。',
-                max_value: '交易股數要<=持有股數。',
-                min_value: '交易股數至少1股。'
-              },
-              price: {
-                required: '請輸入單價。',
-                decimal: '請輸入數字。'
-              },
-          }
-      };
-      this.$validator.localize('en', dict);
     },
     methods: {
         get_cookie: function (name) {
             var match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
             if (match) return match[2];
         },
-        onchange_stock_activity: function () {
-          // 交易動作: sell，向後端索取可販售的證卷代號。
-          if (this.activity == 'Buy') {
-            return true
-          }
-          parent.this = this
-          // Connect API
-          axios({
-              method: 'post',
-              url: 'http://www.stockhelper.com.tw:8889/api/stock_basic_info',
-              data: {
-                action: 'get_stock_symbol_list',
-                user_email: this.user_email,
-              }
-          })
-          .then(function (response) {
-              console.log(response);
-              parent.this.stock_symbol_list = response.data
-          })
-          .catch(function (error) {
-              console.log(error);
-          })
-        },
-        onchange_stock_symbol: function () {
-          parent.this = this
-          // Connect API
-          axios({
-              method: 'post',
-              url: 'http://www.stockhelper.com.tw:8889/api/stock_basic_info',
-              data: {
-                action: 'get_stock_name',
-                activity: this.activity,
-                user_email: this.user_email,
-                stock_symbol: this.stock_symbol,
-              }
-          })
-          .then(function (response) {
-              console.log(response);
-              parent.this.stock_name = response.data['stock_name']
-              parent.this.form.cost = response.data['cost']
-              parent.this.form.stock_basic_info_id = response.data['stock_basic_info_id']
-              parent.this.on_hand_volume = response.data['sell_stock_volume']
-          })
-          .catch(function (error) {
-              console.log(error);
-          })
-        },
-        calculate_total_cost: function () {
-          this.total_cost = this.form.price * this.form.volume
-          this.total_profit = (parseInt(this.form.price) - parseInt(this.form.cost)) * parseInt(this.form.volume)
-        },
-        checkForm: function() {
-        // 檢查表單
-          this.$validator.validate().then(valid => {
-						if (valid) {
-              this.submitForm()
-              $('#CreateTrade').modal('hide')
-              this.reset_data()
-              return true
-            }
-            // 滑到error的地方
-            document.getElementById(this.$validator.errors.items[0].field).scrollIntoView(false);
-            return true
-					});
-				},
-        submitForm: function() {
-        // 提交表單
-          if (this.activity === 'Buy') {
-            this.form.cost = this.form.price
-          }
-          if (this.activity === 'Sell') {
-            this.form.volume = - (this.form.volume)
-          }
-          console.log(this.form)
-          axios({
-            method: 'post',
-            url: 'http://www.stockhelper.com.tw:8889/api/stock_basic_info',
-            data: {
-              action: 'submit',
-              user_email: this.user_email,
-              form: this.form,
-            }
-          })
-          .then(function (response) {
-            alert(response.data)
-            location.href = './'
-          })
-          .catch(function (error) {
-              console.log(error);
-          })
-        },
-        reset_data: function() {
-            Object.assign(this.$data, this.$options.data());
-            this.user_email = this.$store.getters.user_email
-            this.get_page_info()
-        },
         get_page_info: function() {
-          var google_token = this.get_cookie('google_token')
-          var vuex_store = this.$store
-          if (google_token === undefined) {
-            location.href = './login'
-          }
-          parent.this = this
+          const google_token = this.get_cookie('google_token')
+          const parent_this = this
+          const vuex_store = this.$store
           axios({
             method: 'get',
             url: 'http://www.stockhelper.com.tw:8889/api/stock_basic_info',
             params: {'google_token': google_token}
           })
           .then(function (response) {
-            if (response.data['login_status'] === 0) {
-              // 轉頁
-              location.href = response.data['url']
-            }
-            parent.this.user_email = vuex_store.getters.user_email
-            parent.this.page_info = response.data
+            parent_this.user_email = vuex_store.getters.user_email
+            parent_this.page_info = response.data
           })
           .catch(function (error) {
             console.log(error);

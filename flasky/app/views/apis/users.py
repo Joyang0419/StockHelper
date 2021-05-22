@@ -38,7 +38,7 @@ class UsersApi (Resource):
         # google驗證
         id_info = google_log_in(google_token, google_oauth_client_id)
         if id_info is None:
-            return response
+            return response, 500
         # 從table: users get data
         user = Users.query.filter_by(email=id_info['email']).first()
         # 圖片網址

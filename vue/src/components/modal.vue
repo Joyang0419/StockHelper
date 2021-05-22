@@ -125,7 +125,6 @@ export default {
     }
     },
     created: function () {
-      // Connect API
       // vee-validate custom words
       const dict = {
       custom: {
@@ -150,10 +149,6 @@ export default {
       this.$validator.localize('en', dict);
     },
     methods: {
-        get_cookie: function (name) {
-            var match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-            if (match) return match[2];
-        },
         onchange_stock_activity: function () {
           // 交易動作: sell，向後端索取可販售的證卷代號。
           if (this.activity == 'Buy') {
@@ -254,5 +249,8 @@ export default {
 </script>
 
 <style scoped>
-
+.warning_word {
+  color:red;
+  padding-left: 6px
+}
 </style>
