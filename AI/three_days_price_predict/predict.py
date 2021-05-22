@@ -40,7 +40,7 @@ def ai_three_days_predict(df):
 
 if __name__ == '__main__':
     # 讀取資料
-    stock = session.query(StockBasicInfo).filter_by(stock_symbol='0050').first()
+    stock = session.query(StockBasicInfo).filter_by(stock_symbol='2892').first()
     stock_data = session.query(StockData).filter_by(stock_basic_info_id=stock.id).\
         order_by(StockData.date)
     # 讀取db_data -> dataframe
@@ -51,10 +51,10 @@ if __name__ == '__main__':
     # 整理資料
     three_days_predict_data = {
         'three_days_no_change': round(three_days_predict_output[0], 2),
-        'three_days_increase_one_percent': round(three_days_predict_output[0], 2),
-        'three_days_decrease_one_percent': round(three_days_predict_output[1], 2),
-        'three_days_increase_three_percent': round(three_days_predict_output[2], 2),
-        'three_days_decrease_three_percent': round(three_days_predict_output[3], 2)
+        'three_days_increase_one_percent': round(three_days_predict_output[1], 2),
+        'three_days_decrease_one_percent': round(three_days_predict_output[2], 2),
+        'three_days_increase_three_percent': round(three_days_predict_output[3], 2),
+        'three_days_decrease_three_percent': round(three_days_predict_output[4], 2)
     }
     # 資料進入資料庫
     three_days_predict = ThreeDaysPredict(**three_days_predict_data)

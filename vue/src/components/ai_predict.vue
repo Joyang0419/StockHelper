@@ -3,40 +3,41 @@
     <breadcrumb></breadcrumb>
     <div class="input-group" style="padding-top: 10px; padding-bottom: 20px">
       <input type="search" class="form-control rounded" placeholder="請輸入股票代號" aria-label="Search"
-      aria-describedby="search-addon"/>
-      <button type="button" class="btn btn-outline-primary" @click="stock_symbol_search()">search</button>
+      aria-describedby="search-addon" v-model="stock_symbol"/>
+      <button type="button" class="btn btn-outline-primary"  @click="get_data(stock_symbol)">search</button>
     </div>
-    <h6>最近交易日: 2021-04-23</h6>
+    <h6>最近交易日: {{ latest_date }}</h6>
     <!-- line chart -->
     <div id="line_chart" style="height: 400px; min-width: 310px;"></div>
-      <div class="row">
-        <figure class="highcharts-figure">
-          <!-- bar chart -->
-          <div class="col-md-12" id="bar_chart"></div>
-        </figure>
-        <div class="col-md-5">
-          <div class="panel panel-scrolling">
-            <div class="panel-heading">
-              <h1 class="panel-title" style="text-align:center">AI智能預測</h1>
-            </div>
-            <div class="panel-body">
-              <ul>
-                <li>未來5天的價格: 22.4, 22.6, 22.3, 22.5, 22.6。</li>
-                <li>明日價格預測
-                  <ul>
-                    <li>無動靜: 41%</li>
-                    <li>漲幅3%以內: 1%</li>
-                    <li>漲幅3%以上: 1%</li>
-                    <li>跌幅3%以內: 47%</li>
-                    <li>跌幅3%以上: 10%</li>
-                  </ul>
-                </li>
-                <div class="col-md-3 button"><a href="#" class="btn btn-success" data-toggle="modal" data-target="#CreateTrade">執行交易</a></div>
-              </ul>
-            </div>
-          </div>
-        </div>
+    <!-- bar chart -->
+    <figure class="highcharts-figure">
+      <div class="col-md-12" id="bar_chart"></div>
+    </figure>
+    <!-- ai_predict -->
+    <div class="panel panel-scrolling">
+      <div class="panel-heading">
+        <h1 class="panel-title" style="text-align:center">AI智能預測</h1>
       </div>
+      <div class="panel-body">
+        <ul>
+          <li>未來五個交易日價格: {{ ai_predict_data.five_days_predict[0] }},
+            {{ ai_predict_data.five_days_predict[1] }},
+            {{ ai_predict_data.five_days_predict[2] }},
+            {{ ai_predict_data.five_days_predict[3] }},
+            {{ ai_predict_data.five_days_predict[4] }}。</li>
+          <li>明日價格預測
+            <ul>
+              <li>無動靜: {{ ai_predict_data.three_days_predict['three_days_no_change'] }}</li>
+              <li>漲幅3%以內: {{ ai_predict_data.three_days_predict['three_days_increase_one_percent'] }}</li>
+              <li>漲幅3%以上: {{ ai_predict_data.three_days_predict['three_days_increase_three_percent'] }}</li>
+              <li>跌幅3%以內: {{ ai_predict_data.three_days_predict['three_days_decrease_one_percent'] }}</li>
+              <li>跌幅3%以上: {{ ai_predict_data.three_days_predict['three_days_decrease_three_percent'] }}</li>
+            </ul>
+          </li>
+          <div class="button"><a href="#" class="btn btn-success" data-toggle="modal" data-target="#CreateTrade">執行交易</a></div>
+        </ul>
+      </div>
+    </div>
   <modal></modal>
 </div>
 </template>
@@ -52,37 +53,62 @@ export default {
   },
   data() {
     return {
-      user_email: '',
+      stock_symbol: '',
+      latest_date: '',
+      stock_name: '',
+      bar_chart_data: '',
+      line_chart_data: '',
+      ai_predict_data: {
+        three_days_predict: '',
+        five_days_predict: ''
+      }
     }
   },
   created() {
-    this.get_line_chart_data()
+    this.get_data('0050')
   },
   mounted() {
-    this.create_bar_chart()
   },
   methods: {
-    get_page_info() {
-      this.get_line_chart_data()
-    },
-    get_line_chart_data() {
-      parent.this = this
+    get_data(stock_symbol) {
+      const parent_this = this
       axios({
         method: 'get',
-        url: 'https://cdn.jsdelivr.net/gh/highcharts/highcharts@v7.0.0/samples/data/msft-c.json',
+        url: 'http://www.stockhelper.com.tw:8889/api/ai_predict',
+        params: {'stock_symbol': stock_symbol}
       })
       .then(function(response) {
+        parent_this.latest_date = response.data['latest_date']
+        parent_this.stock_name = response.data['stock_name']
+        parent_this.bar_chart_data = response.data['bar_chart_data']
+        parent_this.line_chart_data = response.data['line_chart_data']
+        parent_this.ai_predict_data = response.data['ai_predict_data']
         var seriesOptions = [],
             seriesCounter = 0,
-            names = ['MSFT'];
-        parent.this.success(response.data, names, seriesCounter, seriesOptions)
+            names = [parent_this.stock_name];
+        parent_this.success_create_line_chart(parent_this.line_chart_data, names, seriesCounter, seriesOptions)
+        parent_this.create_bar_chart()
       })
       .catch(function(error) {
         console.log(error);
       });
-
+    },
+    success_create_line_chart(data, names, seriesCounter, seriesOptions) {
+      var name = names[0]
+      var i = 0;
+      seriesOptions[0] = {
+          name: name,
+          data: data
+      };
+      // As we're loading the data asynchronously, we don't know what order it
+      // will arrive. So we keep a counter and create the chart when all the data is loaded.
+      seriesCounter += 1;
+      if (seriesCounter === names.length) {
+          this.create_line_chart(seriesOptions);
+      }
     },
     create_line_chart(seriesOptions) {
+      parent.this = this
       Highcharts.stockChart('line_chart', {
         rangeSelector: {
             selected: 4
@@ -100,7 +126,10 @@ export default {
             }]
         },
         title: {
-          text: '第一金'
+          text: parent.this.stock_name
+        },
+        subtitle: {
+          text: '預測未來五天價格走勢'
         },
         plotOptions: {
             series: {
@@ -116,22 +145,9 @@ export default {
         series: seriesOptions
       });
     },
-    success(data, names, seriesCounter, seriesOptions) {
-      var name = 'MSFT'
-      var i = 0;
-      seriesOptions[0] = {
-          name: name,
-          data: data
-      };
-      // As we're loading the data asynchronously, we don't know what order it
-      // will arrive. So we keep a counter and create the chart when all the data is loaded.
-      seriesCounter += 1;
-      if (seriesCounter === names.length) {
-          this.create_line_chart(seriesOptions);
-      }
-    },
     create_bar_chart() {
       // Build the chart
+      const parent_this = this
       Highcharts.chart('bar_chart', {
           chart: {
               plotBackgroundColor: null,
@@ -140,7 +156,10 @@ export default {
               type: 'pie'
           },
           title: {
-              text: 'Browser market shares in January, 2018'
+              text: ''
+          },
+          subtitle: {
+              text: '未來三天的漲幅趨勢機率圖'
           },
           tooltip: {
               pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
@@ -156,7 +175,7 @@ export default {
                   cursor: 'pointer',
                   dataLabels: {
                       enabled: true,
-                      format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                      format: '<b>{point.name}</b>: {point.percentage:.0f} %',
                       // connectorColor: 'silver'
                   }
               }
@@ -164,12 +183,11 @@ export default {
           series: [{
               name: 'Share',
               data: [
-                  { name: 'Chrome', y: 61.41 },
-                  { name: 'Internet Explorer', y: 11.84 },
-                  { name: 'Firefox', y: 10.85 },
-                  { name: 'Edge', y: 4.67 },
-                  { name: 'Safari', y: 4.18 },
-                  { name: 'Other', y: 7.05 }
+                  { name: '漲幅3%以內', y: parent_this.bar_chart_data['three_days_increase_one_percent']},
+                  { name: '漲幅3%以上', y: parent_this.bar_chart_data['three_days_increase_three_percent']},
+                  { name: '漲跌幅1%以內', y: parent_this.bar_chart_data['three_days_no_change']},
+                  { name: '跌幅3%以內', y: parent_this.bar_chart_data['three_days_decrease_one_percent']},
+                  { name: '跌幅3%以上', y: parent_this.bar_chart_data['three_days_decrease_three_percent']},
               ]
           }]
       });
