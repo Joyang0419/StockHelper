@@ -100,7 +100,6 @@ export default {
           sidebar_Status: false,
           username: this.$store.getters.username,
           user_image_url: this.$store.getters.user_image_url,
-          login_error: 0
         }
     },
     created: function () {
@@ -108,14 +107,6 @@ export default {
     },
     mounted: function () {
 
-    },
-    watch: {
-      login_error: function () {
-        if (this.login_error === 1) {
-          alert('請重新登入')
-          location.href = './login'
-        }
-      }
     },
     methods: {
         toggle_sidebar: function () {
@@ -139,10 +130,10 @@ export default {
         },
         get_user_info: function() {
           // Connect API
-          const google_token = this.get_cookie('google_token')
-          if (google_token === undefined) {
+          if (this.$router.currentRoute.name === 'Login') {
             return true
           }
+          const google_token = this.get_cookie('google_token')
           const parent_this = this
           const vuex_store = this.$store
           axios({
@@ -156,9 +147,10 @@ export default {
               parent_this.user_image_url = vuex_store.getters.user_image_url
           })
           .catch(function (error) {
-            console.log(error);
+            // console.log(error);
             parent_this.delete_cookie('google_token')
-            parent_this.login_error = 1
+            alert('請登入。')
+            parent_this.$router.push({ name: 'Login'})
           })
         }
     }

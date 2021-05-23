@@ -65,11 +65,23 @@ export default {
     }
   },
   created() {
+    this.check_login_status()
     this.get_data('0050')
   },
   mounted() {
   },
   methods: {
+    get_cookie: function (name) {
+      var match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+      if (match) return match[2];
+    },
+    check_login_status() {
+      const google_token = this.get_cookie('google_token')
+      if (google_token === undefined) {
+        alert('請登入。')
+        this.$router.push({ name: 'Login'})
+      }
+    },
     get_data(stock_symbol) {
       const parent_this = this
       axios({

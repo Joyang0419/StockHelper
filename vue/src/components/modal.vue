@@ -110,12 +110,6 @@ export default {
       on_hand_volume: 0,
       total_cost: 0,
       total_profit: 0,
-      page_info: {
-        quick_review_info: '',
-        total_inventory_cost: '',
-        inventory_count: '',
-        inventory_list: ''
-      },
       form: {
         stock_basic_info_id: '',
         volume: 0,

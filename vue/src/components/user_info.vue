@@ -100,26 +100,11 @@ export default {
   },
   data () {
     return {
-      user_email: '',
-      activity_list: ['Buy', 'Sell'],
-      stock_symbol_list: [],
-      activity: '',
-      stock_symbol: '',
-      stock_name: '',
-      on_hand_volume: 0,
-      total_cost: 0,
-      total_profit: 0,
       page_info: {
         quick_review_info: '',
         total_inventory_cost: '',
         inventory_count: '',
         inventory_list: ''
-      },
-      form: {
-        stock_basic_info_id: '',
-        volume: 0,
-        price: 0,
-        cost: 0
       },
     }
     },
@@ -134,19 +119,22 @@ export default {
         },
         get_page_info: function() {
           const google_token = this.get_cookie('google_token')
+          if (google_token === undefined) {
+            this.$router.push({ name: 'Login'})
+          }
           const parent_this = this
-          const vuex_store = this.$store
           axios({
             method: 'get',
             url: 'http://www.stockhelper.com.tw:8889/api/stock_basic_info',
             params: {'google_token': google_token}
           })
           .then(function (response) {
-            parent_this.user_email = vuex_store.getters.user_email
             parent_this.page_info = response.data
           })
           .catch(function (error) {
+            alert('請登入。')
             console.log(error);
+            parent_this.$router.push({ name: 'Login'})
           })
         },
     }

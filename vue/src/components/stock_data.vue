@@ -92,9 +92,21 @@ export default {
     }
   },
   created: function() {
+    this.check_login_status()
     this.get_page_info('0050')
   },
   methods: {
+    get_cookie: function (name) {
+      var match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+      if (match) return match[2];
+    },
+    check_login_status() {
+      const google_token = this.get_cookie('google_token')
+      if (google_token === undefined) {
+        alert('請登入。')
+        this.$router.push({ name: 'Login'})
+      }
+    },
     stock_symbol_search() {
       this.get_page_info(this.stock_symbol)
       this.stock_symbol = ''

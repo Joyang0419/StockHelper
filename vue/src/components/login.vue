@@ -13,7 +13,7 @@
 
             <div class="col-md-8 banner-sec">
                 <div class="carousel-item active">
-                    <img class="d-block img-fluid" src="https://static.pexels.com/photos/33972/pexels-photo.jpg" alt="First slide">
+                    <img class="d-block img-fluid" src="@/assets/login/images/login_image.jpg" alt="First slide">
                 </div>
             </div>
         </div>
