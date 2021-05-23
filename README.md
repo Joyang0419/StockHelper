@@ -6,10 +6,9 @@
   # 首先要安裝: git, docker, docker-compose
   # git clone 此專案，專案目錄下會看到docker-compose.yml
   docker-compose up -d
+  
   # 因為google oauth一定要綁domain，因此綁定的domain: www.stockhelper.com.tw
-  # 使用ip:port連線，會無法登入，進到host更改
-  server_ip www.stockhelper.com.tw
-  # example: 35.215.134.213 www.stockhelper.com.tw
+  # 使用ip:port連線，會無法登入，進到host更改，example: 35.215.134.213 www.stockhelper.com.tw
   ```
   <備註>
   參考文章:
