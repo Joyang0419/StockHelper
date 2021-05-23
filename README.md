@@ -10,7 +10,7 @@
   # 使用ip:port連線，會無法登入，
   ```
   <備註>
-  - 更改windows host: https://www.albert-yu.com/blog/windows-10-%E4%BF%AE%E6%94%B9%E7%B3%BB%E7%BB%9F-hosts-%E8%A8%AD%E5%AE%9A%E5%9C%96%E6%96%87%E6%95%99%E5%AD%B8/
+  - [windows更改host](https://www.albert-yu.com/blog/windows-10-%E4%BF%AE%E6%94%B9%E7%B3%BB%E7%BB%9F-hosts-%E8%A8%AD%E5%AE%9A%E5%9C%96%E6%96%87%E6%95%99%E5%AD%B8/)
 
 http://github.com - automatic!
 # 整體架構
