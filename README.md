@@ -23,7 +23,7 @@ Container | Function | Port | internal_network
 Vue | 前端顯現網頁 | 8080 | 172.18.0.113
 Flask | 提供API，功能是接收前端條件，對資料庫進行CRUD，並整理成前端所需格式的資料。 | 8889 | 172.18.0.112
 MariaDB | 存放資料 | 3306 | 172.18.0.101
-AI |LSTM: 預測未來連續五天的價格。 DNN: 預測三天後的價格漲幅機率。| | 172.18.0.114
+AI |LSTM: 預測未來連續五天的價格。 DNN: 預測三天後的價格漲跌機率。| | 172.18.0.114
 Crawler | 爬蟲: 鉅亨、台灣證券交易所 | | 172.18.0.115
 # Sitemap
 ![image](https://github.com/Joyang0419/StockHelper/blob/master/readme_file/StockHelper_SiteMap.png)
