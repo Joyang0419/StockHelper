@@ -17,7 +17,7 @@ services:
       MYSQL_ROOT_PASSWORD: stockhelper
       MYSQL_DATABASE: stockhelper
     networks:
-      internal_network:
+      pythonteam:
         ipv4_address: 172.18.0.101
 
   backend:
@@ -26,7 +26,7 @@ services:
     ports:
       - "8889:5000"
     networks:
-      internal_network:
+      pythonteam:
         ipv4_address: 172.18.0.112
     volumes:
       - ./flasky:/var/www/html
@@ -37,12 +37,15 @@ services:
     ports:
       - "8080:8080"
     networks:
-      internal_network:
+      pythonteam:
         ipv4_address: 172.18.0.113
     volumes:
       - ./vue:/var/www/html
 
 networks:
-  internal_network:
-    external:
-      name: pythonteam
+  pythonteam:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.18.0.0/24
