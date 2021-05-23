@@ -11,8 +11,8 @@
   # 使用ip:port連線，會無法登入，進到host更改，example: 35.215.134.213 www.stockhelper.com.tw
   ```
   <備註>
-  參考文章:
   - [windows更改host](https://www.albert-yu.com/blog/windows-10-%E4%BF%AE%E6%94%B9%E7%B3%BB%E7%BB%9F-hosts-%E8%A8%AD%E5%AE%9A%E5%9C%96%E6%96%87%E6%95%99%E5%AD%B8/)
+  - 資料庫的股票資料只有0050
 # 整體架構
 ![image](https://github.com/Joyang0419/StockHelper/blob/master/readme_file/Stockhelper_Architecture.png)
 - 服務皆使用docker container開啟，因為移動環境時方便，避免更換電腦，因為套件的問題，導致無法開啟專案。
