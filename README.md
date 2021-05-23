@@ -17,7 +17,6 @@
 ![image](https://github.com/Joyang0419/StockHelper/blob/master/readme_file/Stockhelper_Architecture.png)
 - 服務皆使用docker container開啟，因為移動環境時方便，避免更換電腦，因為套件的問題，導致無法開啟專案。
 - 服務架設於GCP，因為GCP提供300美元的試用期，以及對外IP，讓客戶可以連入。
-- 專案架構
 Container | Function | Port | internal_network
 ------------ | ------------- | ------------- | -------------
 Vue | Content from cell 2 | 8080 | 172.18.0.113
