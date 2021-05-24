@@ -129,6 +129,7 @@ export default {
             params: {'google_token': google_token}
           })
           .then(function (response) {
+            console.log(response.data)
             parent_this.page_info = response.data
           })
           .catch(function (error) {

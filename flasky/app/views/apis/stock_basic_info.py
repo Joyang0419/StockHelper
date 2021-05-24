@@ -57,7 +57,8 @@ class StockBasicInfoApi(Resource):
             'total_profit': 0,
             'profit_percent': '0%',
         }
-        sell_stock_list = TradeRecords.query.filter(TradeRecords.volume < 0).all()
+        sell_stock_list = TradeRecords.query.filter(TradeRecords.volume < 0,
+                                                    TradeRecords.user_id == user.id).all()
         if len(sell_stock_list) > 0:
             for i in sell_stock_list:
                 quick_review_info['total_cost'] += abs(i.volume * i.cost)
