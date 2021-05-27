@@ -11,7 +11,7 @@
             <div class="metric">
               <span class="icon"><i class="fa fa-download"></i></span>
               <p>
-                  <span class="number">{{ page_info.quick_review_info.total_cost }}</span>
+                  <span class="number">{{ page_info.quick_review_info.total_cost | currency(0) | money }}</span>
                   <span class="title">累計賣出成本</span>
               </p>
             </div>
@@ -20,7 +20,7 @@
             <div class="metric">
               <span class="icon"><i class="fa fa-shopping-bag"></i></span>
               <p>
-                <span class="number">{{ page_info.quick_review_info.total_sell }}</span>
+                <span class="number">{{ page_info.quick_review_info.total_sell | currency(0) | money }}</span>
                 <span class="title">累計售出金額</span>
               </p>
             </div>
@@ -29,7 +29,7 @@
           <div class="metric">
             <span class="icon"><i class="fa fa-eye"></i></span>
             <p>
-              <span class="number">{{ page_info.quick_review_info.total_profit }}</span>
+              <span class="number">{{ page_info.quick_review_info.total_profit | currency(0) | money }}</span>
               <span class="title">累計獲利</span>
             </p>
             </div>
@@ -66,16 +66,16 @@
             <tr>
               <td><a href="#">{{ item.stock_symbol }}</a></td>
               <td>{{ item.stock_name }}</td>
-              <td>{{ item.on_hand_volume }}</td>
-              <td>{{ item.cost }}</td>
+              <td>{{ item.on_hand_volume | currency(0) }}</td>
+              <td>{{ item.cost | currency(2) | money }}</td>
               <td><span class="label label-success">{{ item.updated_at }}</span></td>
             </tr>
           </tbody>
           <tfoot align="center">
             <tr>
               <th>Total</th>
-              <th rowspan="1" colspan="2">總持有股票數量: {{ page_info.inventory_count }}</th>
-              <th rowspan="1" colspan="1">總持有股票成本: {{ page_info.total_inventory_cost }}</th>
+              <th rowspan="1" colspan="2">總持有股票數量: {{ page_info.inventory_count | currency}}</th>
+              <th rowspan="1" colspan="1">總持有股票成本: {{ page_info.total_inventory_cost | currency | money  }}</th>
               <th rowspan="1" colspan="1"><div class="col-md-3 text-right"><a href="#" class="btn btn-primary" data-toggle="modal" data-target="#CreateTrade">執行交易</a></div></th>
             </tr>
           </tfoot>
@@ -111,6 +111,18 @@ export default {
     created: function () {
       // Connect API
       this.get_page_info()
+    },
+    filters:{
+      currency(value, digits) {
+        const number_obj = parseFloat(value)
+        const output = number_obj.toFixed(digits).replace(/\d(?=(\d{3})+\.)/g, '$&,')
+        return output
+      },
+      money(value) {
+        const parts = value.toString().split('.');
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        return '$' + parts.join('.');
+      },
     },
     methods: {
         get_cookie: function (name) {

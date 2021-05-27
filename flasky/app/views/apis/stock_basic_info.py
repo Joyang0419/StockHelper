@@ -17,7 +17,6 @@ class StockBasicInfoApi(Resource):
         google_token = request.args.get('google_token', type=str)
         # google oauth client ID
         google_oauth_client_id = current_app.config['GOOGLE_OAUTH2_CLIENT_ID']
-
         # google驗證
         id_info = google_log_in(google_token, google_oauth_client_id)
         # 從table: users get data
@@ -40,9 +39,8 @@ class StockBasicInfoApi(Resource):
                 sell_stock_volume_total_price = TradeRecords.query \
                     .filter(TradeRecords.user_id == user.id, TradeRecords.stock_basic_info_id == stock.id) \
                     .with_entities(func.sum(TradeRecords.volume * TradeRecords.cost).label('sum')).first()
-                sell_stock_volume_cost_avg = sell_stock_volume_total_price.sum / i.sum
-                stock_info['cost'] = int(sell_stock_volume_cost_avg)
-
+                sell_stock_volume_cost_avg = round(float(sell_stock_volume_total_price.sum) / float(i.sum), 2)
+                stock_info['cost'] = sell_stock_volume_cost_avg
                 # 最近交易日期
                 stock_recent_trade = TradeRecords.query\
                     .filter(TradeRecords.user_id == user.id, TradeRecords.stock_basic_info_id == stock.id)\
@@ -61,8 +59,8 @@ class StockBasicInfoApi(Resource):
                                                     TradeRecords.user_id == user.id).all()
         if len(sell_stock_list) > 0:
             for i in sell_stock_list:
-                quick_review_info['total_cost'] += abs(i.volume * i.cost)
-                quick_review_info['total_sell'] += abs(i.volume * i.price)
+                quick_review_info['total_cost'] += round(abs(i.volume * i.cost))
+                quick_review_info['total_sell'] += round(abs(i.volume * i.price))
             quick_review_info['total_profit'] = quick_review_info['total_sell'] - quick_review_info['total_cost']
             quick_review_info['profit_percent'] = '{percent:.2%}'\
                 .format(percent=(quick_review_info['total_profit'] / quick_review_info['total_cost']))
@@ -113,9 +111,9 @@ class StockBasicInfoApi(Resource):
                     sell_stock_volume_total_price = TradeRecords.query \
                         .filter(TradeRecords.user_id == user.id, TradeRecords.stock_basic_info_id == stock.id) \
                         .with_entities(func.sum(TradeRecords.volume * TradeRecords.cost).label('sum')).first()
-                    sell_stock_volume_cost_avg = sell_stock_volume_total_price.sum / sell_stock_volume.sum
-                    response['sell_stock_volume'] = int(sell_stock_volume.sum)
-                    response['cost'] = int(sell_stock_volume_cost_avg)
+                    sell_stock_volume_cost_avg = round(float(sell_stock_volume_total_price.sum) / float(sell_stock_volume.sum), 2)
+                    response['sell_stock_volume'] = float(sell_stock_volume.sum)
+                    response['cost'] = sell_stock_volume_cost_avg
             return response
         elif json_data['action'] == 'get_stock_symbol_list':
             user = Users.query.filter_by(email=json_data['user_email']).first()
@@ -129,5 +127,3 @@ class StockBasicInfoApi(Resource):
                     stock = StockBasicInfo.query.get(i.stock_basic_info_id)
                     stock_symbol_list.append(stock.stock_symbol)
             return stock_symbol_list
-
-
